@@ -56,14 +56,14 @@ type SellOrderBook struct {
 }
 
 // sort.Interface
-func (sob SellOrderBook) Len() int {
-	return len(sob.Orders)
+func (book SellOrderBook) Len() int {
+	return len(book.Orders)
 }
-func (sob SellOrderBook) Less(i, j int) bool {
-	return sob.Orders[i].Price < sob.Orders[j].Price
+func (book SellOrderBook) Less(i, j int) bool {
+	return book.Orders[i].Price < book.Orders[j].Price
 }
-func (sob SellOrderBook) Swap(i, j int) {
-	sob.Orders[i], sob.Orders[j] = sob.Orders[j], sob.Orders[i]
+func (book SellOrderBook) Swap(i, j int) {
+	book.Orders[i], book.Orders[j] = book.Orders[j], book.Orders[i]
 }
 
 
@@ -75,34 +75,37 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	}
 }
 
-func AppendSellOrder(sob SellOrderBook, seller Account, amount uint64, price uint64) (SellOrderBook, uint64, error) {
+func AppendSellOrder(book SellOrderBook, seller Account, amount uint64, price uint64) (SellOrderBook, uint64, error) {
 	if err := checkAmountAndPrice(amount, price); err != nil {
-		return sob, 0, err
+		return book, 0, err
 	}
 
-	var so SellOrder
-	so.ID = sob.OrderIDTrack
-	so.Seller = seller
-	so.Amount = amount
-	so.Price = price
+	var order SellOrder
+	order.ID = book.OrderIDTrack
+	order.Seller = seller
+	order.Amount = amount
+	order.Price = price
 
 	// Even numbers to have different ID than buy orders
-	sob.OrderIDTrack += 2
+	book.OrderIDTrack += 2
 
 	// Insert the order in the increasing order
-	if len(sob.Orders) > 0 {
-		i := sort.Search(len(sob.Orders), func(i int) bool { return sob.Orders[i].Price > so.Price })
-		orders := append(sob.Orders, so)
+	if len(book.Orders) > 0 {
+		i := sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price > order.Price })
+		orders := append(book.Orders, order)
 		copy(orders[i+1:], orders[i:])
-		orders[i] = so
-		sob.Orders = orders
+		orders[i] = order
+		book.Orders = orders
 	} else {
-		sob.Orders = append(sob.Orders, so)
+		book.Orders = append(book.Orders, order)
 	}
 
-	return sob, so.ID, nil
+	return book, order.ID, nil
 }
 
+func FillSellOrder(book BuyOrderBook, order SellOrder) {
+
+}
 
 // ------------------------------ Buy Order ------------------------------
 
@@ -121,15 +124,15 @@ type BuyOrderBook struct {
 }
 
 // sort.Interface
-func (bob BuyOrderBook) Len() int {
-	return len(bob.Orders)
+func (book BuyOrderBook) Len() int {
+	return len(book.Orders)
 }
-func (bob BuyOrderBook) Less(i, j int) bool {
+func (book BuyOrderBook) Less(i, j int) bool {
 	// Buy orders are decreasingly sorted
-	return bob.Orders[i].Price > bob.Orders[j].Price
+	return book.Orders[i].Price > book.Orders[j].Price
 }
-func (bob BuyOrderBook) Swap(i, j int) {
-	bob.Orders[i], bob.Orders[j] = bob.Orders[j], bob.Orders[i]
+func (book BuyOrderBook) Swap(i, j int) {
+	book.Orders[i], book.Orders[j] = book.Orders[j], book.Orders[i]
 }
 
 func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
@@ -140,30 +143,30 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	}
 }
 
-func AppendBuyOrder(bob BuyOrderBook, buyer Account, amount uint64, price uint64) (BuyOrderBook, uint64, error) {
+func AppendBuyOrder(book BuyOrderBook, buyer Account, amount uint64, price uint64) (BuyOrderBook, uint64, error) {
 	if err := checkAmountAndPrice(amount, price); err != nil {
-		return bob, 0, err
+		return book, 0, err
 	}
 
-	var bo BuyOrder
-	bo.ID = bob.OrderIDTrack
-	bo.Buyer = buyer
-	bo.Amount = amount
-	bo.Price = price
+	var order BuyOrder
+	order.ID = book.OrderIDTrack
+	order.Buyer = buyer
+	order.Amount = amount
+	order.Price = price
 
 	// Odd numbers to have different ID than buy orders
-	bob.OrderIDTrack += 2
+	book.OrderIDTrack += 2
 
 	// Insert the order in the decreasing order
-	if len(bob.Orders) > 0 {
-		i := sort.Search(len(bob.Orders), func(i int) bool { return bob.Orders[i].Price < bo.Price })
-		orders := append(bob.Orders, bo)
+	if len(book.Orders) > 0 {
+		i := sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
+		orders := append(book.Orders, order)
 		copy(orders[i+1:], orders[i:])
-		orders[i] = bo
-		bob.Orders = orders
+		orders[i] = order
+		book.Orders = orders
 	} else {
-		bob.Orders = append(bob.Orders, bo)
+		book.Orders = append(book.Orders, order)
 	}
 
-	return bob, bo.ID, nil
+	return book, order.ID, nil
 }
