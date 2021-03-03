@@ -66,6 +66,16 @@ func (book *SellOrderBook) IncrementNextOrderID() {
 	book.OrderIDTrack += 2
 }
 
+// RemoveOrder removes an order from the book and keep it ordered
+func (book *SellOrderBook) RemoveOrder(index int) error {
+	if index >= len(book.Orders) {
+		return ErrOrderNotFound
+	}
+
+	book.Orders = append(book.Orders[:index], book.Orders[index+1:]...)
+	return nil
+}
+
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	return SellOrderBook{
 		OrderIDTrack: 0,
