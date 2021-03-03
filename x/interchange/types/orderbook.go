@@ -27,12 +27,12 @@ type Order struct {
 
 type OrderBook interface {
 	sort.Interface
-	InsertOrder(Order)
+	InsertOrder(Order) OrderBook
 	GetOrder(int) (Order, error)
-	SetOrder(int, Order) error
+	SetOrder(int, Order) (OrderBook, error)
 	GetNextOrderID() uint64
-	IncrementNextOrderID()
-	RemoveOrder(int) error
+	IncrementNextOrderID() OrderBook
+	RemoveOrder(int) (OrderBook, error)
 }
 
 // UpdateOrderBook updates an order book with an order
@@ -40,18 +40,23 @@ type OrderBook interface {
 // if it doesn't exist, the order is inserted
 func UpdateOrderBook(book OrderBook, order Order) OrderBook {
 	// Search of the order of the same ID
-	i := sort.Search(book.Len(), func(i int) bool {
-		tmp, _ := book.GetOrder(i)
-		return tmp.ID == order.ID
-	})
+	var found bool
+	var orderToUpdate Order
+	var i int
+	for i = book.Len()-1; i >= 0; i-- {
+		orderToUpdate, _ = book.GetOrder(i)
+		if orderToUpdate.ID == order.ID {
+			found = true
+			break
+		}
+	}
 
 	// If order found
-	if i < book.Len() {
-		orderToUpdate, _ := book.GetOrder(i)
+	if found {
 		orderToUpdate.Amount += order.Amount
-		book.SetOrder(i, orderToUpdate)
+		book, _ = book.SetOrder(i, orderToUpdate)
 	} else {
-		book.InsertOrder(order)
+		book = book.InsertOrder(order)
 	}
 
 	return book
@@ -81,10 +86,10 @@ func AppendOrder(book OrderBook, creator Account, amount uint64, price uint64) (
 	order.Price = price
 
 	// Increment ID tracker
-	book.IncrementNextOrderID()
+	book = book.IncrementNextOrderID()
 
 	// Insert the order
-	book.InsertOrder(order)
+	book = book.InsertOrder(order)
 
 	return book, order.ID, nil
 }

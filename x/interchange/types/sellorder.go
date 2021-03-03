@@ -22,7 +22,7 @@ func (book SellOrderBook) Swap(i, j int) {
 
 // InsertOrder inserts the order in the increasing order in the book
 // it doesn't set the ID or check if the ID already exist
-func (book *SellOrderBook) InsertOrder(order Order) {
+func (book SellOrderBook) InsertOrder(order Order) OrderBook {
 	// Insert the order in the increasing order
 	if len(book.Orders) > 0 {
 		i := sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
@@ -33,6 +33,8 @@ func (book *SellOrderBook) InsertOrder(order Order) {
 	} else {
 		book.Orders = append(book.Orders, order)
 	}
+
+	return book
 }
 
 // GetOrders gets the order from an index
@@ -45,14 +47,14 @@ func (book SellOrderBook) GetOrder(index int) (order Order, err error) {
 }
 
 // GetOrders gets the order from an index
-func (book *SellOrderBook) SetOrder(index int, order Order) error {
+func (book SellOrderBook) SetOrder(index int, order Order) (OrderBook, error) {
 	if index >= len(book.Orders) {
-		return ErrOrderNotFound
+		return book, ErrOrderNotFound
 	}
 
 	book.Orders[index] = order
 
-	return nil
+	return book, nil
 }
 
 // GetNextOrderID gets the ID of the next order to append
@@ -61,19 +63,21 @@ func (book SellOrderBook) GetNextOrderID() uint64 {
 }
 
 // IncrementNextOrderID updates the ID tracker for sell orders
-func (book *SellOrderBook) IncrementNextOrderID() {
+func (book SellOrderBook) IncrementNextOrderID() OrderBook {
 	// Even numbers to have different ID than buy orders
 	book.OrderIDTrack += 2
+
+	return book
 }
 
 // RemoveOrder removes an order from the book and keep it ordered
-func (book *SellOrderBook) RemoveOrder(index int) error {
+func (book SellOrderBook) RemoveOrder(index int) (OrderBook, error) {
 	if index >= len(book.Orders) {
-		return ErrOrderNotFound
+		return book, ErrOrderNotFound
 	}
 
 	book.Orders = append(book.Orders[:index], book.Orders[index+1:]...)
-	return nil
+	return book, nil
 }
 
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {

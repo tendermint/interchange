@@ -15,3 +15,10 @@ func GenRemoteAccount() types.Account {
 		Chain:   GenString(10),
 	}
 }
+
+func MockAccount(str string) types.Account {
+	return types.Account{
+		Address: str,
+		Chain:   "",
+	}
+}
