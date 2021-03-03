@@ -5,13 +5,13 @@ import "github.com/tendermint/interchange/x/interchange/types"
 func GenLocalAccount() types.Account {
 	return types.Account{
 		Address: GenAddress(),
-		Chain: "",
+		Chain:   "",
 	}
 }
 
 func GenRemoteAccount() types.Account {
 	return types.Account{
 		Address: GenAddress(),
-		Chain: GenString(10),
+		Chain:   GenString(10),
 	}
 }
