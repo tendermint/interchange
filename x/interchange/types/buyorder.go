@@ -137,3 +137,40 @@ func LiquidateFromBuyOrder(book SellOrderBook, order Order) (
 
 	return book, remainingBuyOrder, liquidatedSellOrder, purchase, true, false
 }
+
+// FillBuyOrder try to fill the buy order with the order book and returns all the side effects
+func FillBuyOrder(book SellOrderBook, order Order) (
+	newBook SellOrderBook,
+	remainingBuyOrder Order,
+	liquidated []Order,
+	purchase uint64,
+	filled bool,
+) {
+	totalPurchase := uint64(0)
+	remainingBuyOrder = order
+
+	// Liquidate as long as there is match
+	for {
+		var match bool
+		var liquidation Order
+		book, remainingBuyOrder, liquidation, purchase, match, filled = LiquidateFromBuyOrder(
+			book,
+			remainingBuyOrder,
+		)
+		if !match {
+			break
+		}
+
+		// Update gains
+		totalPurchase += purchase
+
+		// Update liquidated
+		liquidated = append(liquidated, liquidation)
+
+		if filled {
+			break
+		}
+	}
+
+	return book, remainingBuyOrder, liquidated, totalPurchase, filled
+}
