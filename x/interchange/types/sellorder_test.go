@@ -14,3 +14,7 @@ func TestNewSellOrderBook(t *testing.T) {
 	require.Equal(t, priceDenom, book.PriceDenom)
 	require.Empty(t, book.Orders)
 }
+
+func TestLiquidateFromSellOrder(t *testing.T) {
+
+}
