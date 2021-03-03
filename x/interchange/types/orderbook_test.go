@@ -48,23 +48,23 @@ func OrderListToBuyOrderBook(list []types.Order) types.SellOrderBook {
 
 func TestAppendOrder(t *testing.T) {
 	var ok bool
-	book := types.NewSellOrderBook(GenPair())
+	sellBook := types.NewSellOrderBook(GenPair())
 
 	// Prevent zero amount
 	seller, amount, price := GenOrder()
-	_, _, err := types.AppendOrder(book, seller, 0, price)
+	_, _, err := types.AppendOrder(sellBook, seller, 0, price)
 	require.ErrorIs(t, err, types.ErrZeroAmount)
 
 	// Prevent big amount
-	_, _, err = types.AppendOrder(book, seller, types.MaxAmount+1, price)
+	_, _, err = types.AppendOrder(sellBook, seller, types.MaxAmount+1, price)
 	require.ErrorIs(t, err, types.ErrMaxAmount)
 
 	// Prevent zero price
-	_, _, err = types.AppendOrder(book, seller, amount, 0)
+	_, _, err = types.AppendOrder(sellBook, seller, amount, 0)
 	require.ErrorIs(t, err, types.ErrZeroPrice)
 
 	// Prevent big price
-	_, _, err = types.AppendOrder(book, seller, amount, types.MaxPrice+1)
+	_, _, err = types.AppendOrder(sellBook, seller, amount, types.MaxPrice+1)
 	require.ErrorIs(t, err, types.ErrMaxPrice)
 
 	// Can append sell orders
@@ -72,45 +72,57 @@ func TestAppendOrder(t *testing.T) {
 		// Append a new order
 		creator, amount, price := GenOrder()
 		newOrder := types.Order{
-			ID:      book.OrderIDTrack,
+			ID:      sellBook.OrderIDTrack,
 			Creator: creator,
 			Amount:  amount,
 			Price:   price,
 		}
-		newBook, orderID, err := types.AppendOrder(book, creator, amount, price)
-		book, ok = newBook.(types.SellOrderBook)
+		newBook, orderID, err := types.AppendOrder(sellBook, creator, amount, price)
+		sellBook, ok = newBook.(types.SellOrderBook)
 
 		// Checks
 		require.True(t, ok)
 		require.NoError(t, err)
-		require.Contains(t, book.Orders, newOrder)
+		require.Contains(t, sellBook.Orders, newOrder)
 		require.Equal(t, newOrder.ID, orderID)
 	}
-	require.Len(t, book.Orders, 20)
-	require.True(t, sort.IsSorted(book))
+	require.Len(t, sellBook.Orders, 20)
+	require.True(t, sort.IsSorted(sellBook))
 
-	// TODO: Can append buy orders
-	//buyBook := types.NewBuyOrderBook(GenPair())
-	//for i := 0; i < 20; i++ {
-	//	// Append a new order
-	//	creator, amount, price := GenOrder()
-	//	newOrder := types.Order{
-	//		ID:     book.OrderIDTrack,
-	//		Creator: creator,
-	//		Amount: amount,
-	//		Price:  price,
-	//	}
-	//	newBook, orderID, err := types.AppendOrder(buyBook, creator, amount, price)
-	//	buyBook, ok := newBook.(types.BuyOrderBook)
-	//
-	//	// Checks
-	//	require.True(t, ok)
-	//	require.NoError(t, err)
-	//	require.Contains(t, book.Orders, newOrder)
-	//	require.Equal(t, newOrder.ID, orderID)
-	//}
-	//require.Len(t, buyBook.Orders, 20)
-	//require.True(t, sort.IsSorted(buyBook))
+	// Can append buy orders
+	buyBook := types.NewBuyOrderBook(GenPair())
+	for i := 0; i < 20; i++ {
+		// Append a new order
+		creator, amount, price := GenOrder()
+		newOrder := types.Order{
+			ID:     buyBook.OrderIDTrack,
+			Creator: creator,
+			Amount: amount,
+			Price:  price,
+		}
+		newBook, orderID, err := types.AppendOrder(buyBook, creator, amount, price)
+		buyBook, ok = newBook.(types.BuyOrderBook)
+
+		// Checks
+		require.True(t, ok)
+		require.NoError(t, err)
+		require.Contains(t, buyBook.Orders, newOrder)
+		require.Equal(t, newOrder.ID, orderID)
+	}
+	require.Len(t, buyBook.Orders, 20)
+	require.True(t, sort.IsSorted(buyBook))
+}
+
+func simulateUpdateSellOrderBook(t *testing.T, inputList []types.Order, inputOrder types.Order, expectedList []types.Order) {
+	inBook := OrderListToSellOrderBook(inputList)
+	expectedBook := OrderListToSellOrderBook(expectedList)
+
+	require.True(t, sort.IsSorted(inBook))
+	require.True(t, sort.IsSorted(expectedBook))
+
+	simulatedBook := types.UpdateOrderBook(inBook, inputOrder)
+
+	require.Equal(t, expectedBook, simulatedBook)
 }
 
 func TestUpdateOrderBook(t *testing.T) {
@@ -122,43 +134,71 @@ func TestUpdateOrderBook(t *testing.T) {
 	}
 
 	inputOrder := types.Order{ID: 1, Creator: MockAccount("1"), Amount: 100, Price: 20}
-	outputBook := []types.Order{
+	expectedBook := []types.Order{
 		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
 		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
 		{ID: 2, Creator: MockAccount("2"), Amount: 100, Price: 15},
 		{ID: 3, Creator: MockAccount("3"), Amount: 100, Price: 10},
 	}
-	simulateUpdateSellOrderBook(t, inputBook, inputOrder, outputBook)
+	simulateUpdateSellOrderBook(t, inputBook, inputOrder, expectedBook)
 
 	inputOrder = types.Order{ID: 4, Creator: MockAccount("1"), Amount: 100, Price: 17}
-	outputBook = []types.Order{
+	expectedBook = []types.Order{
 		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
 		{ID: 1, Creator: MockAccount("1"), Amount: 100, Price: 20},
 		{ID: 4, Creator: MockAccount("1"), Amount: 100, Price: 17},
 		{ID: 2, Creator: MockAccount("2"), Amount: 100, Price: 15},
 		{ID: 3, Creator: MockAccount("3"), Amount: 100, Price: 10},
 	}
-	simulateUpdateSellOrderBook(t, inputBook, inputOrder, outputBook)
+	simulateUpdateSellOrderBook(t, inputBook, inputOrder, expectedBook)
 
 	inputOrder = types.Order{ID: 5, Creator: MockAccount("1"), Amount: 500, Price: 1}
-	outputBook = []types.Order{
+	expectedBook = []types.Order{
 		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
 		{ID: 1, Creator: MockAccount("1"), Amount: 100, Price: 20},
 		{ID: 2, Creator: MockAccount("2"), Amount: 100, Price: 15},
 		{ID: 3, Creator: MockAccount("3"), Amount: 100, Price: 10},
 		{ID: 5, Creator: MockAccount("1"), Amount: 500, Price: 1},
 	}
-	simulateUpdateSellOrderBook(t, inputBook, inputOrder, outputBook)
+	simulateUpdateSellOrderBook(t, inputBook, inputOrder, expectedBook)
 }
 
-func simulateUpdateSellOrderBook(t *testing.T, inputList []types.Order, inputOrder types.Order, outputList []types.Order) {
-	inBook := OrderListToSellOrderBook(inputList)
-	outBook := OrderListToSellOrderBook(outputList)
+func simulateRestoreSellOrderBook(t *testing.T, inputList []types.Order, liquidated []types.Order, expectedList []types.Order) {
+	inputBook := OrderListToSellOrderBook(inputList)
+	expectedBook := OrderListToSellOrderBook(expectedList)
 
-	require.True(t, sort.IsSorted(inBook))
-	require.True(t, sort.IsSorted(outBook))
+	require.True(t, sort.IsSorted(inputBook))
+	require.True(t, sort.IsSorted(expectedBook))
 
-	simulatedBook := types.UpdateOrderBook(inBook, inputOrder)
+	simulatedBook := types.RestoreOrderBook(inputBook, liquidated)
 
-	require.Equal(t, outBook, simulatedBook)
+	require.Equal(t, expectedBook, simulatedBook)
+}
+
+func TestRestoreOrderBook(t *testing.T) {
+	inputBook := []types.Order{
+		{ID: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{ID: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{ID: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{ID: 4, Creator: MockAccount("3"), Amount: 45, Price: 10},
+		{ID: 5, Creator: MockAccount("3"), Amount: 12, Price: 5},
+	}
+	liquidated := []types.Order{
+		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
+		{ID: 5, Creator: MockAccount("3"), Amount: 200, Price: 5},
+		{ID: 6, Creator: MockAccount("4"), Amount: 40, Price: 30},
+		{ID: 7, Creator: MockAccount("5"), Amount: 42, Price: 1},
+	}
+	expectedBook := []types.Order{
+		{ID: 6, Creator: MockAccount("4"), Amount: 40, Price: 30},
+		{ID: 0, Creator: MockAccount("0"), Amount: 150, Price: 25},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{ID: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{ID: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{ID: 4, Creator: MockAccount("3"), Amount: 45, Price: 10},
+		{ID: 5, Creator: MockAccount("3"), Amount: 212, Price: 5},
+		{ID: 7, Creator: MockAccount("5"), Amount: 42, Price: 1},
+	}
+	simulateRestoreSellOrderBook(t, inputBook, liquidated, expectedBook)
 }

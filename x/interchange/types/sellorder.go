@@ -20,7 +20,7 @@ func (book SellOrderBook) Swap(i, j int) {
 	book.Orders[i], book.Orders[j] = book.Orders[j], book.Orders[i]
 }
 
-// InsertOrder inserts the order in the increasing order in the book
+// InsertOrder inserts the order in the decreasing order in the book
 // it doesn't set the ID or check if the ID already exist
 func (book SellOrderBook) InsertOrder(order Order) OrderBook {
 	// Insert the order in the increasing order
@@ -37,7 +37,7 @@ func (book SellOrderBook) InsertOrder(order Order) OrderBook {
 	return book
 }
 
-// GetOrders gets the order from an index
+// GetOrder gets the order from an index
 func (book SellOrderBook) GetOrder(index int) (order Order, err error) {
 	if index >= len(book.Orders) {
 		return order, ErrOrderNotFound
@@ -46,7 +46,7 @@ func (book SellOrderBook) GetOrder(index int) (order Order, err error) {
 	return book.Orders[index], nil
 }
 
-// GetOrders gets the order from an index
+// SetOrder gets the order from an index
 func (book SellOrderBook) SetOrder(index int, order Order) (OrderBook, error) {
 	if index >= len(book.Orders) {
 		return book, ErrOrderNotFound
