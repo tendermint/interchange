@@ -71,14 +71,6 @@ func (book BuyOrderBook) IncrementNextOrderID() OrderBook {
 	return book
 }
 
-func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
-	return BuyOrderBook{
-		OrderIDTrack: 1,
-		AmountDenom:  AmountDenom,
-		PriceDenom:   PriceDenom,
-	}
-}
-
 // RemoveOrder removes an order from the book and keep it ordered
 func (book BuyOrderBook) RemoveOrder(index int) (OrderBook, error) {
 	if index >= len(book.Orders) {
@@ -87,4 +79,61 @@ func (book BuyOrderBook) RemoveOrder(index int) (OrderBook, error) {
 
 	book.Orders = append(book.Orders[:index], book.Orders[index+1:]...)
 	return book, nil
+}
+
+
+func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
+	return BuyOrderBook{
+		OrderIDTrack: 1,
+		AmountDenom:  AmountDenom,
+		PriceDenom:   PriceDenom,
+	}
+}
+
+// LiquidateFromBuyOrder liquidates the first sell order of the book from the buy order
+// if no match is found, return false for match
+func LiquidateFromBuyOrder(book SellOrderBook, order Order) (
+	newBook SellOrderBook,
+	remainingBuyOrder Order,
+	liquidatedSellOrder Order,
+	purchase uint64,
+	match bool,
+	filled bool,
+) {
+	// No match if no order
+	if book.Len() == 0 {
+		return newBook, order, liquidatedSellOrder, purchase, false, false
+	}
+
+	// Check if match
+	lowestAsk := book.Orders[book.Len()-1]
+	if order.Price < lowestAsk.Price {
+		return newBook, order, liquidatedSellOrder, purchase, false, false
+	}
+
+	liquidatedSellOrder = lowestAsk
+
+	// Check if buy order can be entirely filled
+	if lowestAsk.Amount >= order.Amount {
+		purchase = order.Amount
+		liquidatedSellOrder.Amount = order.Amount
+
+		// Remove lowest ask if it has been entirely liquidated
+		lowestAsk.Amount -= order.Amount
+		if lowestAsk.Amount == 0 {
+			book.Orders = book.Orders[:book.Len()-1]
+		} else {
+			book.Orders[book.Len()-1] = lowestAsk
+		}
+
+		return book, remainingBuyOrder, liquidatedSellOrder, purchase, true, true
+	}
+
+	// Not entirely filled
+	purchase = lowestAsk.Amount
+	book.Orders = book.Orders[:book.Len()-1]
+	remainingBuyOrder = order
+	remainingBuyOrder.Amount -= lowestAsk.Amount
+
+	return book, remainingBuyOrder, liquidatedSellOrder, purchase, true, false
 }

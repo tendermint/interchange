@@ -100,21 +100,22 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 ) {
 	// No match if no order
 	if book.Len() == 0 {
-		return newBook, remainingSellOrder, liquidatedBuyOrder, gain, false, false
+		return newBook, order, liquidatedBuyOrder, gain, false, false
 	}
 
 	// Check if match
 	highestBid := book.Orders[book.Len()-1]
 	if order.Price > highestBid.Price {
-		return newBook, remainingSellOrder, liquidatedBuyOrder, gain, false, false
+		return newBook, order, liquidatedBuyOrder, gain, false, false
 	}
 
-	gain = order.Amount * highestBid.Price
 	liquidatedBuyOrder = highestBid
-	liquidatedBuyOrder.Amount = order.Amount
 
 	// Check if sell order can be entirely filled
 	if highestBid.Amount >= order.Amount {
+		gain = order.Amount * highestBid.Price
+		liquidatedBuyOrder.Amount = order.Amount
+
 		// Remove highest bid if it has been entirely liquidated
 		highestBid.Amount -= order.Amount
 		if highestBid.Amount == 0 {
@@ -126,6 +127,7 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 	}
 
 	// Not entirely filled
+	gain = highestBid.Amount * highestBid.Price
 	book.Orders = book.Orders[:book.Len()-1]
 	remainingSellOrder = order
 	remainingSellOrder.Amount -= highestBid.Amount
