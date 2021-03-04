@@ -43,7 +43,7 @@ func UpdateOrderBook(book OrderBook, order Order) OrderBook {
 	var found bool
 	var orderToUpdate Order
 	var i int
-	for i = book.Len()-1; i >= 0; i-- {
+	for i = book.Len() - 1; i >= 0; i-- {
 		orderToUpdate, _ = book.GetOrder(i)
 		if orderToUpdate.ID == order.ID {
 			found = true

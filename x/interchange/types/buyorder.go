@@ -81,7 +81,6 @@ func (book BuyOrderBook) RemoveOrder(index int) (OrderBook, error) {
 	return book, nil
 }
 
-
 func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	return BuyOrderBook{
 		OrderIDTrack: 1,

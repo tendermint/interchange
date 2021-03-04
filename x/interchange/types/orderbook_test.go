@@ -31,13 +31,13 @@ func OrderListToSellOrderBook(list []types.Order) types.SellOrderBook {
 		OrderIDTrack: 0,
 		AmountDenom:  "foo",
 		PriceDenom:   "bar",
-		Orders: listCopy,
+		Orders:       listCopy,
 	}
 	return book
 }
 
-func OrderListToBuyOrderBook(list []types.Order) types.SellOrderBook {
-	book := types.SellOrderBook{
+func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
+	book := types.BuyOrderBook{
 		OrderIDTrack: 0,
 		AmountDenom:  "foo",
 		PriceDenom:   "bar",
@@ -95,10 +95,10 @@ func TestAppendOrder(t *testing.T) {
 		// Append a new order
 		creator, amount, price := GenOrder()
 		newOrder := types.Order{
-			ID:     buyBook.OrderIDTrack,
+			ID:      buyBook.OrderIDTrack,
 			Creator: creator,
-			Amount: amount,
-			Price:  price,
+			Amount:  amount,
+			Price:   price,
 		}
 		newBook, orderID, err := types.AppendOrder(buyBook, creator, amount, price)
 		buyBook, ok = newBook.(types.BuyOrderBook)
@@ -113,7 +113,13 @@ func TestAppendOrder(t *testing.T) {
 	require.True(t, sort.IsSorted(buyBook))
 }
 
-func simulateUpdateOrderBook(t *testing.T, sell bool, inputList []types.Order, inputOrder types.Order, expectedList []types.Order) {
+func simulateUpdateOrderBook(
+	t *testing.T,
+	sell bool,
+	inputList []types.Order,
+	inputOrder types.Order,
+	expectedList []types.Order,
+) {
 	var inputBook types.OrderBook
 	var expectedBook types.OrderBook
 	if sell {
@@ -127,9 +133,9 @@ func simulateUpdateOrderBook(t *testing.T, sell bool, inputList []types.Order, i
 	require.True(t, sort.IsSorted(inputBook))
 	require.True(t, sort.IsSorted(expectedBook))
 
-	simulatedBook := types.UpdateOrderBook(inputBook, inputOrder)
+	outputBook := types.UpdateOrderBook(inputBook, inputOrder)
 
-	require.Equal(t, expectedBook, simulatedBook)
+	require.Equal(t, expectedBook, outputBook)
 }
 
 func TestUpdateOrderBook(t *testing.T) {
@@ -160,7 +166,7 @@ func TestUpdateOrderBook(t *testing.T) {
 		{ID: 2, Creator: MockAccount("2"), Amount: 100, Price: 15},
 		{ID: 3, Creator: MockAccount("3"), Amount: 100, Price: 10},
 	}
-	simulateUpdateOrderBook(t,true, inputBook, inputOrder, expectedBook)
+	simulateUpdateOrderBook(t, true, inputBook, inputOrder, expectedBook)
 
 	// Sell 3
 	inputOrder = types.Order{ID: 5, Creator: MockAccount("1"), Amount: 500, Price: 1}
@@ -171,7 +177,7 @@ func TestUpdateOrderBook(t *testing.T) {
 		{ID: 3, Creator: MockAccount("3"), Amount: 100, Price: 10},
 		{ID: 5, Creator: MockAccount("1"), Amount: 500, Price: 1},
 	}
-	simulateUpdateOrderBook(t,true, inputBook, inputOrder, expectedBook)
+	simulateUpdateOrderBook(t, true, inputBook, inputOrder, expectedBook)
 
 	// Buy order book
 	inputBook = []types.Order{
@@ -200,7 +206,7 @@ func TestUpdateOrderBook(t *testing.T) {
 		{ID: 1, Creator: MockAccount("1"), Amount: 100, Price: 20},
 		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
 	}
-	simulateUpdateOrderBook(t,false, inputBook, inputOrder, expectedBook)
+	simulateUpdateOrderBook(t, false, inputBook, inputOrder, expectedBook)
 
 	// Buy 3
 	inputOrder = types.Order{ID: 5, Creator: MockAccount("1"), Amount: 500, Price: 1}
@@ -211,10 +217,15 @@ func TestUpdateOrderBook(t *testing.T) {
 		{ID: 1, Creator: MockAccount("1"), Amount: 100, Price: 20},
 		{ID: 0, Creator: MockAccount("0"), Amount: 100, Price: 25},
 	}
-	simulateUpdateOrderBook(t,false, inputBook, inputOrder, expectedBook)
+	simulateUpdateOrderBook(t, false, inputBook, inputOrder, expectedBook)
 }
 
-func simulateRestoreSellOrderBook(t *testing.T, sell bool, inputList []types.Order, liquidated []types.Order, expectedList []types.Order) {
+func simulateRestoreSellOrderBook(
+	t *testing.T, sell bool,
+	inputList []types.Order,
+	liquidated []types.Order,
+	expectedList []types.Order,
+) {
 	var inputBook types.OrderBook
 	var expectedBook types.OrderBook
 	if sell {
@@ -228,9 +239,9 @@ func simulateRestoreSellOrderBook(t *testing.T, sell bool, inputList []types.Ord
 	require.True(t, sort.IsSorted(inputBook))
 	require.True(t, sort.IsSorted(expectedBook))
 
-	simulatedBook := types.RestoreOrderBook(inputBook, liquidated)
+	outputBook := types.RestoreOrderBook(inputBook, liquidated)
 
-	require.Equal(t, expectedBook, simulatedBook)
+	require.Equal(t, expectedBook, outputBook)
 }
 
 func TestRestoreOrderBook(t *testing.T) {
