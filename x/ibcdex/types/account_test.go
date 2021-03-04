@@ -1,23 +1,23 @@
 package types_test
 
-import "github.com/tendermint/interchange/x/interchange/types"
+import "github.com/tendermint/interchange/x/ibcdex/types"
 
-func GenLocalAccount() types.Account {
-	return types.Account{
-		Address: types.GenAddress(),
+func GenLocalAccount() *types.Account {
+	return &types.Account{
+		Address: GenAddress(),
 		Chain:   "",
 	}
 }
 
-func GenRemoteAccount() types.Account {
-	return types.Account{
-		Address: types.GenAddress(),
-		Chain:   types.GenString(10),
+func GenRemoteAccount() *types.Account {
+	return &types.Account{
+		Address: GenAddress(),
+		Chain:   GenString(10),
 	}
 }
 
-func MockAccount(str string) types.Account {
-	return types.Account{
+func MockAccount(str string) *types.Account {
+	return &types.Account{
 		Address: str,
 		Chain:   "",
 	}

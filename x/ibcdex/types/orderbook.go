@@ -45,7 +45,7 @@ func UpdateOrderBook(book OrderBook, order Order) OrderBook {
 	var i int
 	for i = book.Len() - 1; i >= 0; i-- {
 		orderToUpdate, _ = book.GetOrder(i)
-		if orderToUpdate.ID == order.ID {
+		if orderToUpdate.Id == order.Id {
 			found = true
 			break
 		}
@@ -80,8 +80,8 @@ func AppendOrder(book OrderBook, creator Account, amount uint32, price uint32) (
 
 	// Initialize the order
 	var order Order
-	order.ID = book.GetNextOrderID()
-	order.Creator = creator
+	order.Id = book.GetNextOrderID()
+	order.Creator = &creator
 	order.Amount = amount
 	order.Price = price
 
@@ -91,7 +91,7 @@ func AppendOrder(book OrderBook, creator Account, amount uint32, price uint32) (
 	// Insert the order
 	book = book.InsertOrder(order)
 
-	return book, order.ID, nil
+	return book, order.Id, nil
 }
 
 // checkAmountAndPrice checks correct amount or price

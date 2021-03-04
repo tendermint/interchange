@@ -28,12 +28,12 @@ func (book SellOrderBook) InsertOrder(order Order) OrderBook {
 	// Insert the order in the increasing order
 	if len(book.Orders) > 0 {
 		i := sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
-		orders := append(book.Orders, order)
+		orders := append(book.Orders, &order)
 		copy(orders[i+1:], orders[i:])
-		orders[i] = order
+		orders[i] = &order
 		book.Orders = orders
 	} else {
-		book.Orders = append(book.Orders, order)
+		book.Orders = append(book.Orders, &order)
 	}
 
 	return book
@@ -45,7 +45,7 @@ func (book SellOrderBook) GetOrder(index int) (order Order, err error) {
 		return order, ErrOrderNotFound
 	}
 
-	return book.Orders[index], nil
+	return *book.Orders[index], nil
 }
 
 // SetOrder gets the order from an index
@@ -54,7 +54,7 @@ func (book SellOrderBook) SetOrder(index int, order Order) (OrderBook, error) {
 		return book, ErrOrderNotFound
 	}
 
-	book.Orders[index] = order
+	book.Orders[index] = &order
 
 	return book, nil
 }
@@ -75,7 +75,7 @@ func (book SellOrderBook) IncrementNextOrderID() OrderBook {
 // RemoveOrderFromID removes an order from the book and keep it ordered
 func (book SellOrderBook) RemoveOrderFromID(id uint32) (OrderBook, error) {
 	for i, order := range book.Orders {
-		if order.ID == id {
+		if order.Id == id {
 			book.Orders = append(book.Orders[:i], book.Orders[i+1:]...)
 			return book, nil
 		}
@@ -114,7 +114,7 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 		return book, order, liquidatedBuyOrder, gain, false, false
 	}
 
-	liquidatedBuyOrder = highestBid
+	liquidatedBuyOrder = *highestBid
 
 	// Check if sell order can be entirely filled
 	if highestBid.Amount >= order.Amount {
