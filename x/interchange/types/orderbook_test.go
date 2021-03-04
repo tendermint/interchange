@@ -37,12 +37,14 @@ func OrderListToSellOrderBook(list []types.Order) types.SellOrderBook {
 }
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
+	listCopy := make([]types.Order, len(list))
+	copy(listCopy, list)
 	book := types.BuyOrderBook{
 		OrderIDTrack: 0,
 		AmountDenom:  "foo",
 		PriceDenom:   "bar",
+		Orders:       listCopy,
 	}
-	copy(book.Orders, list)
 	return book
 }
 

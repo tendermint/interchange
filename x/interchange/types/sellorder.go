@@ -98,23 +98,26 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 	match bool,
 	filled bool,
 ) {
+	remainingSellOrder = order
+
 	// No match if no order
 	if book.Len() == 0 {
-		return newBook, order, liquidatedBuyOrder, gain, false, false
+		return book, order, liquidatedBuyOrder, gain, false, false
 	}
 
 	// Check if match
 	highestBid := book.Orders[book.Len()-1]
 	if order.Price > highestBid.Price {
-		return newBook, order, liquidatedBuyOrder, gain, false, false
+		return book, order, liquidatedBuyOrder, gain, false, false
 	}
 
 	liquidatedBuyOrder = highestBid
 
 	// Check if sell order can be entirely filled
 	if highestBid.Amount >= order.Amount {
-		gain = order.Amount * highestBid.Price
+		remainingSellOrder.Amount = 0
 		liquidatedBuyOrder.Amount = order.Amount
+		gain = order.Amount * highestBid.Price
 
 		// Remove highest bid if it has been entirely liquidated
 		highestBid.Amount -= order.Amount
@@ -129,7 +132,6 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 	// Not entirely filled
 	gain = highestBid.Amount * highestBid.Price
 	book.Orders = book.Orders[:book.Len()-1]
-	remainingSellOrder = order
 	remainingSellOrder.Amount -= highestBid.Amount
 
 	return book, remainingSellOrder, liquidatedBuyOrder, gain, true, false
@@ -143,6 +145,7 @@ func FillSellOrder(book BuyOrderBook, order Order) (
 	gain uint32,
 	filled bool,
 ) {
+	var liquidatedList []Order
 	totalGain := uint32(0)
 	remainingSellOrder = order
 
@@ -162,12 +165,12 @@ func FillSellOrder(book BuyOrderBook, order Order) (
 		totalGain += gain
 
 		// Update liquidated
-		liquidated = append(liquidated, liquidation)
+		liquidatedList = append(liquidatedList, liquidation)
 
 		if filled {
 			break
 		}
 	}
 
-	return book, remainingSellOrder, liquidated, totalGain, filled
+	return book, remainingSellOrder, liquidatedList, totalGain, filled
 }
