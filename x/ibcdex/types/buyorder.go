@@ -1,13 +1,15 @@
 package types
 
-import "sort"
+import (
+	"sort"
+)
 
-type BuyOrderBook struct {
-	OrderIDTrack uint32
-	AmountDenom  string
-	PriceDenom   string
-	Orders       []Order
-}
+//type BuyOrderBook struct {
+//	OrderIDTrack uint32
+//	AmountDenom  string
+//	PriceDenom   string
+//	Orders       []Order
+//}
 
 // sort.Interface
 func (book BuyOrderBook) Len() int {

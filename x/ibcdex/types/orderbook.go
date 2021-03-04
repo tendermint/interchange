@@ -18,12 +18,12 @@ var (
 	ErrOrderNotFound = errors.New("order not found")
 )
 
-type Order struct {
-	ID      uint32
-	Creator Account
-	Amount  uint32
-	Price   uint32
-}
+//type Order struct {
+//	ID      uint32
+//	Creator Account
+//	Amount  uint32
+//	Price   uint32
+//}
 
 type OrderBook interface {
 	sort.Interface
