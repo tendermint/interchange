@@ -25,6 +25,52 @@ type liquidateBuyRes struct {
 	Filled     bool
 }
 
+func TestBuyOrderBook_RemoveOrderFromID(t *testing.T) {
+	inputList := []types.Order{
+		{ID: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{ID: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{ID: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
+	}
+
+	inputBook := OrderListToBuyOrderBook(inputList)
+	expectedList := []types.Order{
+		{ID: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{ID: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
+	}
+	expectedBook := OrderListToBuyOrderBook(expectedList)
+	outputBook, err := inputBook.RemoveOrderFromID(2)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, outputBook)
+
+	inputBook = OrderListToBuyOrderBook(inputList)
+	expectedList = []types.Order{
+		{ID: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{ID: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+	}
+	expectedBook = OrderListToBuyOrderBook(expectedList)
+	outputBook, err = inputBook.RemoveOrderFromID(0)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, outputBook)
+
+	inputBook = OrderListToBuyOrderBook(inputList)
+	expectedList = []types.Order{
+		{ID: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{ID: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{ID: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
+	}
+	expectedBook = OrderListToBuyOrderBook(expectedList)
+	outputBook, err = inputBook.RemoveOrderFromID(3)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, outputBook)
+
+	inputBook = OrderListToBuyOrderBook(inputList)
+	_, err = inputBook.RemoveOrderFromID(4)
+	require.ErrorIs(t, err, types.ErrOrderNotFound)
+}
+
 func simulateLiquidateFromBuyOrder(
 	t *testing.T,
 	inputList []types.Order,

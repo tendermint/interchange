@@ -32,7 +32,7 @@ type OrderBook interface {
 	SetOrder(int, Order) (OrderBook, error)
 	GetNextOrderID() uint32
 	IncrementNextOrderID() OrderBook
-	RemoveOrder(int) (OrderBook, error)
+	RemoveOrderFromID(uint32) (OrderBook, error)
 }
 
 // UpdateOrderBook updates an order book with an order

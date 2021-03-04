@@ -70,14 +70,15 @@ func (book SellOrderBook) IncrementNextOrderID() OrderBook {
 	return book
 }
 
-// RemoveOrder removes an order from the book and keep it ordered
-func (book SellOrderBook) RemoveOrder(index int) (OrderBook, error) {
-	if index >= len(book.Orders) {
-		return book, ErrOrderNotFound
+// RemoveOrderFromID removes an order from the book and keep it ordered
+func (book SellOrderBook) RemoveOrderFromID(id uint32) (OrderBook, error) {
+	for i, order := range book.Orders {
+		if order.ID == id {
+			book.Orders = append(book.Orders[:i], book.Orders[i+1:]...)
+			return book, nil
+		}
 	}
-
-	book.Orders = append(book.Orders[:index], book.Orders[index+1:]...)
-	return book, nil
+	return book, ErrOrderNotFound
 }
 
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
