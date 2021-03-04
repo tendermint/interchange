@@ -1,0 +1,103 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SendCancelOrder(MsgSendCancelOrder) returns (MsgSendCancelOrderResponse);
+  rpc SendTargetBuyOrder(MsgSendTargetBuyOrder) returns (MsgSendTargetBuyOrderResponse);
+  rpc SendSourceBuyOrder(MsgSendSourceBuyOrder) returns (MsgSendSourceBuyOrderResponse);
+  rpc SendTargetSellOrder(MsgSendTargetSellOrder) returns (MsgSendTargetSellOrderResponse);
+  rpc SendSourceSellOrder(MsgSendSourceSellOrder) returns (MsgSendSourceSellOrderResponse);
+  rpc SendCreatePair(MsgSendCreatePair) returns (MsgSendCreatePairResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgSendCancelOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string amountDenom = 5;
+  string priceDenom = 6;
+  int32 orderID = 7;
+}
+
+message MsgSendCancelOrderResponse {
+}
+
+message MsgSendTargetBuyOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string buyer = 5;
+  string amountDenom = 6;
+  int32 amount = 7;
+  string priceDenom = 8;
+  int32 price = 9;
+}
+
+message MsgSendTargetBuyOrderResponse {
+}
+
+message MsgSendSourceBuyOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string buyer = 5;
+  string amountDenom = 6;
+  int32 amount = 7;
+  string priceDenom = 8;
+  int32 price = 9;
+}
+
+message MsgSendSourceBuyOrderResponse {
+}
+
+message MsgSendTargetSellOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string seller = 5;
+  string amountDenom = 6;
+  int32 amount = 7;
+  string priceDenom = 8;
+  int32 price = 9;
+}
+
+message MsgSendTargetSellOrderResponse {
+}
+
+message MsgSendSourceSellOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string seller = 5;
+  string amountDenom = 6;
+  int32 amount = 7;
+  string priceDenom = 8;
+  int32 price = 9;
+}
+
+message MsgSendSourceSellOrderResponse {
+}
+
+message MsgSendCreatePair {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string sourceDenom = 5;
+  string targetDenom = 6;
+}
+
+message MsgSendCreatePairResponse {
+}
