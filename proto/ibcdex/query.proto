@@ -1,0 +1,63 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "ibcdex/buyOrderBook.proto";
+import "ibcdex/sellOrderBook.proto";
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+	rpc BuyOrderBook(QueryGetBuyOrderBookRequest) returns (QueryGetBuyOrderBookResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/buyOrderBook/{index}";
+	}
+	rpc BuyOrderBookAll(QueryAllBuyOrderBookRequest) returns (QueryAllBuyOrderBookResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/buyOrderBook";
+	}
+
+	rpc SellOrderBook(QueryGetSellOrderBookRequest) returns (QueryGetSellOrderBookResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/sellOrderBook/{index}";
+	}
+	rpc SellOrderBookAll(QueryAllSellOrderBookRequest) returns (QueryAllSellOrderBookResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/sellOrderBook";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetBuyOrderBookRequest {
+	string index = 1;
+}
+
+message QueryGetBuyOrderBookResponse {
+	BuyOrderBook BuyOrderBook = 1;
+}
+
+message QueryAllBuyOrderBookRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllBuyOrderBookResponse {
+	repeated BuyOrderBook BuyOrderBook = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetSellOrderBookRequest {
+	string index = 1;
+}
+
+message QueryGetSellOrderBookResponse {
+	SellOrderBook SellOrderBook = 1;
+}
+
+message QueryAllSellOrderBookRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllSellOrderBookResponse {
+	repeated SellOrderBook SellOrderBook = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
