@@ -9,7 +9,7 @@ import (
 func TestNewBuyOrderBook(t *testing.T) {
 	amountDenom, priceDenom := GenPair()
 	book := types.NewBuyOrderBook(amountDenom, priceDenom)
-	require.Equal(t, uint64(1), book.OrderIDTrack)
+	require.Equal(t, uint32(1), book.OrderIDTrack)
 	require.Equal(t, amountDenom, book.AmountDenom)
 	require.Equal(t, priceDenom, book.PriceDenom)
 	require.Empty(t, book.Orders)

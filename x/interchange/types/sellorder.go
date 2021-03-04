@@ -3,7 +3,7 @@ package types
 import "sort"
 
 type SellOrderBook struct {
-	OrderIDTrack uint64
+	OrderIDTrack uint32
 	AmountDenom  string
 	PriceDenom   string
 	Orders       []Order
@@ -58,7 +58,7 @@ func (book SellOrderBook) SetOrder(index int, order Order) (OrderBook, error) {
 }
 
 // GetNextOrderID gets the ID of the next order to append
-func (book SellOrderBook) GetNextOrderID() uint64 {
+func (book SellOrderBook) GetNextOrderID() uint32 {
 	return book.OrderIDTrack
 }
 
@@ -94,7 +94,7 @@ func LiquidateFromSellOrder(book BuyOrderBook, order Order) (
 	newBook BuyOrderBook,
 	remainingSellOrder Order,
 	liquidatedBuyOrder Order,
-	gain uint64,
+	gain uint32,
 	match bool,
 	filled bool,
 ) {
@@ -140,10 +140,10 @@ func FillSellOrder(book BuyOrderBook, order Order) (
 	newBook BuyOrderBook,
 	remainingSellOrder Order,
 	liquidated []Order,
-	gain uint64,
+	gain uint32,
 	filled bool,
 ) {
-	totalGain := uint64(0)
+	totalGain := uint32(0)
 	remainingSellOrder = order
 
 	// Liquidate as long as there is match
