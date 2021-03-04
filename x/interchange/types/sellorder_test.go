@@ -36,11 +36,11 @@ func simulateLiquidateFromSellOrder(
 	require.True(t, sort.IsSorted(inputBook))
 	require.True(t, sort.IsSorted(expectedBook))
 
-	outputBook, remaining, liquated, gain, match, filled := types.LiquidateFromSellOrder(inputBook, inputOrder)
+	outputBook, remaining, liquidated, gain, match, filled := types.LiquidateFromSellOrder(inputBook, inputOrder)
 
 	require.Equal(t, expectedBook, outputBook)
 	require.Equal(t, expected.Remaining, remaining)
-	require.Equal(t, expected.Liquidated, liquated)
+	require.Equal(t, expected.Liquidated, liquidated)
 	require.Equal(t, expected.Gain, gain)
 	require.Equal(t, expected.Match, match)
 	require.Equal(t, expected.Filled, filled)
