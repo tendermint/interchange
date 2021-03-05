@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	MaxAmount = uint32(100000)
-	MaxPrice  = uint32(100000)
+	MaxAmount = int32(100000)
+	MaxPrice  = int32(100000)
 )
 
 var (
@@ -19,10 +19,10 @@ var (
 )
 
 //type Order struct {
-//	ID      uint32
+//	ID      int32
 //	Creator Account
-//	Amount  uint32
-//	Price   uint32
+//	Amount  int32
+//	Price   int32
 //}
 
 type OrderBook interface {
@@ -30,9 +30,9 @@ type OrderBook interface {
 	InsertOrder(Order) OrderBook
 	GetOrder(int) (Order, error)
 	SetOrder(int, Order) (OrderBook, error)
-	GetNextOrderID() uint32
+	GetNextOrderID() int32
 	IncrementNextOrderID() OrderBook
-	RemoveOrderFromID(uint32) (OrderBook, error)
+	RemoveOrderFromID(int32) (OrderBook, error)
 }
 
 // UpdateOrderBook updates an order book with an order
@@ -73,7 +73,7 @@ func RestoreOrderBook(book OrderBook, liquidated []Order) OrderBook {
 }
 
 // AppendOrder initializes and appends a new order in a book from order information
-func AppendOrder(book OrderBook, creator Account, amount uint32, price uint32) (OrderBook, uint32, error) {
+func AppendOrder(book OrderBook, creator Account, amount int32, price int32) (OrderBook, int32, error) {
 	if err := checkAmountAndPrice(amount, price); err != nil {
 		return book, 0, err
 	}
@@ -95,14 +95,14 @@ func AppendOrder(book OrderBook, creator Account, amount uint32, price uint32) (
 }
 
 // checkAmountAndPrice checks correct amount or price
-func checkAmountAndPrice(amount uint32, price uint32) error {
-	if amount == uint32(0) {
+func checkAmountAndPrice(amount int32, price int32) error {
+	if amount == int32(0) {
 		return ErrZeroAmount
 	}
 	if amount > MaxAmount {
 		return ErrMaxAmount
 	}
-	if price == uint32(0) {
+	if price == int32(0) {
 		return ErrZeroPrice
 	}
 	if price > MaxPrice {

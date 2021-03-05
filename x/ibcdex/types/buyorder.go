@@ -5,7 +5,7 @@ import (
 )
 
 //type BuyOrderBook struct {
-//	OrderIDTrack uint32
+//	OrderIDTrack int32
 //	AmountDenom  string
 //	PriceDenom   string
 //	Orders       []Order
@@ -61,7 +61,7 @@ func (book BuyOrderBook) SetOrder(index int, order Order) (OrderBook, error) {
 }
 
 // GetNextOrderID gets the ID of the next order to append
-func (book BuyOrderBook) GetNextOrderID() uint32 {
+func (book BuyOrderBook) GetNextOrderID() int32 {
 	return book.OrderIDTrack
 }
 
@@ -74,7 +74,7 @@ func (book BuyOrderBook) IncrementNextOrderID() OrderBook {
 }
 
 // RemoveOrderFromID removes an order from the book and keep it ordered
-func (book BuyOrderBook) RemoveOrderFromID(id uint32) (OrderBook, error) {
+func (book BuyOrderBook) RemoveOrderFromID(id int32) (OrderBook, error) {
 	for i, order := range book.Orders {
 		if order.Id == id {
 			book.Orders = append(book.Orders[:i], book.Orders[i+1:]...)
@@ -98,7 +98,7 @@ func LiquidateFromBuyOrder(book SellOrderBook, order Order) (
 	newBook SellOrderBook,
 	remainingBuyOrder Order,
 	liquidatedSellOrder Order,
-	purchase uint32,
+	purchase int32,
 	match bool,
 	filled bool,
 ) {
@@ -147,11 +147,11 @@ func FillBuyOrder(book SellOrderBook, order Order) (
 	newBook SellOrderBook,
 	remainingBuyOrder Order,
 	liquidated []Order,
-	purchase uint32,
+	purchase int32,
 	filled bool,
 ) {
 	var liquidatedList []Order
-	totalPurchase := uint32(0)
+	totalPurchase := int32(0)
 	remainingBuyOrder = order
 
 	// Liquidate as long as there is match

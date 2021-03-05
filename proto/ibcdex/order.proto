@@ -5,12 +5,12 @@ option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 
 message Account {
   string address = 1;
-  string chain = 2;
+  bool remote = 2;
 }
 
 message Order {
-  uint32 id = 1;
+  int32 id = 1;
   Account creator = 2;
-  uint32 amount = 3;
-  uint32 price = 4;
+  int32 amount = 3;
+  int32 price = 4;
 }

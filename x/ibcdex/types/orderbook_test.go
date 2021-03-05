@@ -8,19 +8,19 @@ import (
 	"testing"
 )
 
-func GenAmount() uint32 {
-	return uint32(rand.Intn(int(types.MaxAmount)) + 1)
+func GenAmount() int32 {
+	return int32(rand.Intn(int(types.MaxAmount)) + 1)
 }
 
-func GenPrice() uint32 {
-	return uint32(rand.Intn(int(types.MaxPrice)) + 1)
+func GenPrice() int32 {
+	return int32(rand.Intn(int(types.MaxPrice)) + 1)
 }
 
 func GenPair() (string, string) {
 	return GenString(10), GenString(10)
 }
 
-func GenOrder() (types.Account, uint32, uint32) {
+func GenOrder() (types.Account, int32, int32) {
 	return *GenLocalAccount(), GenAmount(), GenPrice()
 }
 

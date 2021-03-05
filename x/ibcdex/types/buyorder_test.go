@@ -10,7 +10,7 @@ import (
 func TestNewBuyOrderBook(t *testing.T) {
 	amountDenom, priceDenom := GenPair()
 	book := types.NewBuyOrderBook(amountDenom, priceDenom)
-	require.Equal(t, uint32(1), book.OrderIDTrack)
+	require.Equal(t, int32(1), book.OrderIDTrack)
 	require.Equal(t, amountDenom, book.AmountDenom)
 	require.Equal(t, priceDenom, book.PriceDenom)
 	require.Empty(t, book.Orders)
@@ -20,7 +20,7 @@ type liquidateBuyRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated types.Order
-	Purchase       uint32
+	Purchase       int32
 	Match      bool
 	Filled     bool
 }
@@ -119,7 +119,7 @@ func TestLiquidateFromBuyOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 30},
 		Liquidated: types.Order{Id: 2, Creator: MockAccount("2"), Amount: 20, Price: 15},
-		Purchase:   uint32(20),
+		Purchase:   (20),
 		Match:      true,
 		Filled:     true,
 	}
@@ -134,7 +134,7 @@ func TestLiquidateFromBuyOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 30},
 		Liquidated: types.Order{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
-		Purchase:   uint32(30),
+		Purchase:   int32(30),
 		Match:      true,
 		Filled:     true,
 	}
@@ -149,7 +149,7 @@ func TestLiquidateFromBuyOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 30, Price: 30},
 		Liquidated: types.Order{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
-		Purchase:   uint32(30),
+		Purchase:   int32(30),
 		Match:      true,
 		Filled:     false,
 	}
@@ -160,7 +160,7 @@ type fillBuyRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated []types.Order
-	Purchase       uint32
+	Purchase       int32
 	Filled     bool
 }
 
@@ -193,7 +193,7 @@ func TestFillBuyOrder(t *testing.T) {
 		Book:       []types.Order{},
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Purchase:       uint32(0),
+		Purchase:       int32(0),
 		Filled:     false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -208,7 +208,7 @@ func TestFillBuyOrder(t *testing.T) {
 		Book:       inputBook,
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Purchase:       uint32(0),
+		Purchase:       int32(0),
 		Filled:     false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -224,7 +224,7 @@ func TestFillBuyOrder(t *testing.T) {
 		Liquidated: []types.Order{
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 		},
-		Purchase:   uint32(30),
+		Purchase:   int32(30),
 		Filled: false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -241,7 +241,7 @@ func TestFillBuyOrder(t *testing.T) {
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 			{Id: 1, Creator: MockAccount("1"), Amount: 30, Price: 20},
 		},
-		Purchase:   uint32(30+30),
+		Purchase:   int32(30+30),
 		Filled: true,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -256,7 +256,7 @@ func TestFillBuyOrder(t *testing.T) {
 			{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 		},
-		Purchase:   uint32(30+200+50),
+		Purchase:   int32(30+200+50),
 		Filled: false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)

@@ -10,7 +10,7 @@ import (
 func TestNewSellOrderBook(t *testing.T) {
 	amountDenom, priceDenom := GenPair()
 	book := types.NewSellOrderBook(amountDenom, priceDenom)
-	require.Equal(t, uint32(0), book.OrderIDTrack)
+	require.Equal(t, int32(0), book.OrderIDTrack)
 	require.Equal(t, amountDenom, book.AmountDenom)
 	require.Equal(t, priceDenom, book.PriceDenom)
 	require.Empty(t, book.Orders)
@@ -20,7 +20,7 @@ type liquidateSellRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated types.Order
-	Gain       uint32
+	Gain       int32
 	Match      bool
 	Filled     bool
 }
@@ -119,7 +119,7 @@ func TestLiquidateFromSellOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 22},
 		Liquidated: types.Order{Id: 0, Creator: MockAccount("0"), Amount: 30, Price: 25},
-		Gain:       uint32(30 * 25),
+		Gain:       int32(30 * 25),
 		Match:      true,
 		Filled:     true,
 	}
@@ -134,7 +134,7 @@ func TestLiquidateFromSellOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 15},
 		Liquidated: types.Order{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
-		Gain:       uint32(50 * 25),
+		Gain:       int32(50 * 25),
 		Match:      true,
 		Filled:     true,
 	}
@@ -149,7 +149,7 @@ func TestLiquidateFromSellOrder(t *testing.T) {
 		},
 		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 10, Price: 10},
 		Liquidated: types.Order{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
-		Gain:       uint32(50 * 25),
+		Gain:       int32(50 * 25),
 		Match:      true,
 		Filled:     false,
 	}
@@ -160,7 +160,7 @@ type fillSellRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated []types.Order
-	Gain       uint32
+	Gain       int32
 	Filled     bool
 }
 
@@ -193,7 +193,7 @@ func TestFillSellOrder(t *testing.T) {
 		Book:       []types.Order{},
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Gain:       uint32(0),
+		Gain:       (0),
 		Filled:     false,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
@@ -208,7 +208,7 @@ func TestFillSellOrder(t *testing.T) {
 		Book:       inputBook,
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Gain:       uint32(0),
+		Gain:       int32(0),
 		Filled:     false,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
@@ -224,7 +224,7 @@ func TestFillSellOrder(t *testing.T) {
 		Liquidated: []types.Order{
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 		},
-		Gain:   uint32(50 * 25),
+		Gain:   int32(50 * 25),
 		Filled: false,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
@@ -241,7 +241,7 @@ func TestFillSellOrder(t *testing.T) {
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 			{Id: 1, Creator: MockAccount("1"), Amount: 10, Price: 20},
 		},
-		Gain:       uint32(50*25+10*20),
+		Gain:       int32(50*25+10*20),
 		Filled:     true,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
@@ -256,7 +256,7 @@ func TestFillSellOrder(t *testing.T) {
 			{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 		},
-		Gain:       uint32(50*25+200*20+30*15),
+		Gain:       int32(50*25+200*20+30*15),
 		Filled:     false,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
