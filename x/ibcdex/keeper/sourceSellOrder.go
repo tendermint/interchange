@@ -73,7 +73,17 @@ func (k Keeper) OnRecvSourceSellOrderPacket(ctx sdk.Context, packet channeltypes
 		return packetAck, err
 	}
 
-	// TODO: packet reception logic
+	// Check if the buy order book exists
+	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
+	_, found := k.GetBuyOrderBook(ctx, pairIndex)
+	if !found {
+		return packetAck, errors.New("the pair doesn't exist")
+	}
+
+	// Fill sell order
+	//types.FillSellOrder(book, types.Order{
+	//	Amount: data.Amount
+	//})
 
 	return packetAck, nil
 }

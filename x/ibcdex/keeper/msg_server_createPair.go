@@ -13,7 +13,7 @@ func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreat
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Cannot create the pair if it already exist
-	pairIndex := OrderBookIndex(msg.Port, msg.ChannelID, msg.SourceDenom, msg.TargetDenom)
+	pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.SourceDenom, msg.TargetDenom)
 	_, found := k.GetSellOrderBook(ctx, pairIndex)
 	if found {
 		return &types.MsgSendCreatePairResponse{}, errors.New("the pair already exist")

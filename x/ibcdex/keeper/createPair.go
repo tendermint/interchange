@@ -74,7 +74,7 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 	}
 
 	// Check if the buy order book exists
-	pairIndex := OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
+	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
 	_, found := k.GetBuyOrderBook(ctx, pairIndex)
 	if found {
 		return packetAck, errors.New("the pair already exist")
@@ -104,7 +104,7 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 		}
 
 		// Set the sell order book
-		pairIndex := OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
+		pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.SourceDenom, data.TargetDenom)
 		book := types.NewSellOrderBook(data.SourceDenom, data.TargetDenom)
 		book.Index = pairIndex
 		k.SetSellOrderBook(ctx, book)

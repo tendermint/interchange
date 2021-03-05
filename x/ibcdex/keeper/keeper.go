@@ -19,6 +19,7 @@ type (
 		channelKeeper types.ChannelKeeper
 		portKeeper    types.PortKeeper
 		scopedKeeper  capabilitykeeper.ScopedKeeper
+		bankKeeper    types.BankKeeper
 	}
 )
 
@@ -29,6 +30,7 @@ func NewKeeper(
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
+	bankKeeper types.BankKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
@@ -37,23 +39,10 @@ func NewKeeper(
 		channelKeeper: channelKeeper,
 		portKeeper:    portKeeper,
 		scopedKeeper:  scopedKeeper,
+		bankKeeper:    bankKeeper,
 	}
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func OrderBookIndex(
-	portID string,
-	channelID string,
-	sourceDenom string,
-	targetDenom string,
-) string {
-	return fmt.Sprintf("%s-%s-%s-%s",
-		portID,
-		channelID,
-		sourceDenom,
-		targetDenom,
-	)
 }
