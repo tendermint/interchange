@@ -75,15 +75,45 @@ func (k Keeper) OnRecvSourceSellOrderPacket(ctx sdk.Context, packet channeltypes
 
 	// Check if the buy order book exists
 	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
-	_, found := k.GetBuyOrderBook(ctx, pairIndex)
+	book, found := k.GetBuyOrderBook(ctx, pairIndex)
 	if !found {
 		return packetAck, errors.New("the pair doesn't exist")
 	}
 
 	// Fill sell order
-	//types.FillSellOrder(book, types.Order{
-	//	Amount: data.Amount
-	//})
+	book, remaining, liquidated, gain, _ := types.FillSellOrder(book, types.Order{
+		Amount: data.Amount,
+		Price:  data.Price,
+	})
+
+	// Return remaining amount and gains
+	packetAck.RemainingAmount = remaining.Amount
+	packetAck.Gain = gain
+
+	// Dispatch liquidated buy order
+	for _, liquidation := range liquidated {
+		liquidation := liquidation
+
+		if liquidation.Creator.Remote {
+			// Send token back for remote account
+			packetAck.Sales = append(packetAck.Sales, &liquidation)
+		} else {
+			// Mint tokens for local account
+			voucherDenom := types.VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
+
+			addr, err := sdk.AccAddressFromBech32(liquidation.Creator.Address)
+			if err != nil {
+				return packetAck, err
+			}
+
+			if err := k.MintTokens(ctx, addr, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(liquidation.Amount)))); err != nil {
+				return packetAck, err
+			}
+		}
+	}
+
+	// Save the new order book
+	k.SetBuyOrderBook(ctx, book)
 
 	return packetAck, nil
 }
@@ -93,9 +123,21 @@ func (k Keeper) OnRecvSourceSellOrderPacket(ctx sdk.Context, packet channeltypes
 func (k Keeper) OnAcknowledgementSourceSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SourceSellOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
+		// In case of error we mint back the native token
+		receiver, err := sdk.AccAddressFromBech32(data.Seller)
+		if err != nil {
+			return err
+		}
 
-		// TODO: failed acknowledgement logic
-		_ = dispatchedAck.Error
+		if err := k.UnlockTokens(
+			ctx,
+			packet.SourcePort,
+			packet.SourceChannel,
+			receiver,
+			sdk.NewCoin(data.AmountDenom, sdk.NewInt(int64(data.Amount))),
+		); err != nil {
+			return err
+		}
 
 		return nil
 	case *channeltypes.Acknowledgement_Result:
@@ -107,7 +149,58 @@ func (k Keeper) OnAcknowledgementSourceSellOrderPacket(ctx sdk.Context, packet c
 			return errors.New("cannot unmarshal acknowledgment")
 		}
 
-		// TODO: successful acknowledgement logic
+		// Get the sell order book
+		pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
+		book, found := k.GetSellOrderBook(ctx, pairIndex)
+		if !found {
+			panic("sell order book must exist")
+		}
+
+		// Append the remaining amount of the order
+		newBook, _, err := types.AppendOrder(
+			book,
+			types.Account{
+				Address: data.Seller,
+				Remote:  false,
+			},
+			packetAck.RemainingAmount,
+			data.Price,
+		)
+		if err != nil {
+			return err
+		}
+		book = newBook.(types.SellOrderBook)
+
+		// Distribute the sales
+		for _, sale := range packetAck.Sales {
+			receiver, err := sdk.AccAddressFromBech32(sale.Creator.Address)
+			if err != nil {
+				return err
+			}
+
+			if err := k.UnlockTokens(
+				ctx,
+				packet.SourcePort,
+				packet.SourceChannel,
+				receiver,
+				sdk.NewCoin(data.AmountDenom, sdk.NewInt(int64(sale.Amount))),
+			); err != nil {
+				return err
+			}
+		}
+
+		// Mint the gains
+		voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
+		receiver, err := sdk.AccAddressFromBech32(data.Seller)
+		if err != nil {
+			return err
+		}
+		if err := k.MintTokens(ctx, receiver, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(packetAck.Gain)))); err != nil {
+			return err
+		}
+
+		// Save the new order book
+		k.SetSellOrderBook(ctx, book)
 
 		return nil
 	default:
@@ -118,8 +211,21 @@ func (k Keeper) OnAcknowledgementSourceSellOrderPacket(ctx sdk.Context, packet c
 
 // OnTimeoutSourceSellOrderPacket responds to the case where a packet has not been transmitted because of a timeout
 func (k Keeper) OnTimeoutSourceSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SourceSellOrderPacketData) error {
+	// In case of error we mint back the native token
+	receiver, err := sdk.AccAddressFromBech32(data.Seller)
+	if err != nil {
+		return err
+	}
 
-	// TODO: packet timeout logic
+	if err := k.UnlockTokens(
+		ctx,
+		packet.SourcePort,
+		packet.SourceChannel,
+		receiver,
+		sdk.NewCoin(data.AmountDenom, sdk.NewInt(int64(data.Amount))),
+	); err != nil {
+		return err
+	}
 
 	return nil
 }
