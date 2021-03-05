@@ -43,3 +43,17 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+func OrderBookIndex(
+	portID string,
+	channelID string,
+	sourceDenom string,
+	targetDenom string,
+) string {
+	return fmt.Sprintf("%s-%s-%s-%s",
+		portID,
+		channelID,
+		sourceDenom,
+		targetDenom,
+	)
+}
