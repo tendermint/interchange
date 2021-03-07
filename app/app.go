@@ -345,6 +345,7 @@ func New(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		scopedIbcdexKeeper,
+		app.BankKeeper,
 	)
 	ibcdexModule := ibcdex.NewAppModule(appCodec, app.ibcdexKeeper)
 
