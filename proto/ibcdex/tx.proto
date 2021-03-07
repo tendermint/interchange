@@ -1,0 +1,81 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc CancelBuyOrder(MsgCancelBuyOrder) returns (MsgCancelBuyOrderResponse);
+  rpc CancelSellOrder(MsgCancelSellOrder) returns (MsgCancelSellOrderResponse);
+  rpc SendBuyOrder(MsgSendBuyOrder) returns (MsgSendBuyOrderResponse);
+  rpc SendSellOrder(MsgSendSellOrder) returns (MsgSendSellOrderResponse);
+  rpc SendCreatePair(MsgSendCreatePair) returns (MsgSendCreatePairResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgCancelBuyOrder {
+  string creator = 1;
+  string port = 2;
+  string channel = 3;
+  string amountDenom = 4;
+  string priceDenom = 5;
+  int32 orderID = 6;
+}
+
+message MsgCancelBuyOrderResponse {
+}
+
+message MsgCancelSellOrder {
+  string creator = 1;
+  string port = 2;
+  string channel = 3;
+  string amountDenom = 4;
+  string priceDenom = 5;
+  int32 orderID = 6;
+}
+
+message MsgCancelSellOrderResponse {
+}
+
+message MsgSendBuyOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string amountDenom = 5;
+  int32 amount = 6;
+  string priceDenom = 7;
+  int32 price = 8;
+}
+
+message MsgSendBuyOrderResponse {
+}
+
+message MsgSendSellOrder {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string amountDenom = 5;
+  int32 amount = 6;
+  string priceDenom = 7;
+  int32 price = 8;
+}
+
+message MsgSendSellOrderResponse {
+}
+
+message MsgSendCreatePair {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string sourceDenom = 5;
+  string targetDenom = 6;
+}
+
+message MsgSendCreatePairResponse {
+}

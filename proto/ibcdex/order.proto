@@ -1,0 +1,11 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+message Order {
+  int32 id = 1;
+  string creator = 2;
+  int32 amount = 3;
+  int32 price = 4;
+}
