@@ -66,6 +66,16 @@ func (book SellOrderBook) IncrementNextOrderID() OrderBook {
 	return book
 }
 
+// GetOrderFromID gets an order from the book from its id
+func (book SellOrderBook) GetOrderFromID(id int32) (Order, error) {
+	for _, order := range book.Orders {
+		if order.Id == id {
+			return *order, nil
+		}
+	}
+	return Order{}, ErrOrderNotFound
+}
+
 // RemoveOrderFromID removes an order from the book and keep it ordered
 func (book SellOrderBook) RemoveOrderFromID(id int32) (OrderBook, error) {
 	for i, order := range book.Orders {

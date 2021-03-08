@@ -73,7 +73,42 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 		return packetAck, err
 	}
 
-	// TODO: packet reception logic
+	// Check if the sell order book exists
+	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
+	book, found := k.GetSellOrderBook(ctx, pairIndex)
+	if !found {
+		return packetAck, errors.New("the pair doesn't exist")
+	}
+
+	// Fill buy order
+	book, remaining, liquidated, purchase, _ := types.FillBuyOrder(book, types.Order{
+		Amount: data.Amount,
+		Price: data.Price,
+	})
+
+	// Return remaining amount and gains
+	packetAck.RemainingAmount = remaining.Amount
+	packetAck.Purchase = purchase
+
+	// Dispatch liquidated buy order
+	for _, liquidation := range liquidated {
+		liquidation := liquidation
+
+		// Mint tokens for local account
+		voucherDenom := types.VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.PriceDenom)
+
+		addr, err := sdk.AccAddressFromBech32(liquidation.Creator)
+		if err != nil {
+			return packetAck, err
+		}
+
+		if err := k.MintTokens(ctx, addr, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(liquidation.Amount*liquidation.Price)))); err != nil {
+			return packetAck, err
+		}
+	}
+
+	// Save the new order book
+	k.SetSellOrderBook(ctx, book)
 
 	return packetAck, nil
 }
@@ -83,9 +118,21 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
+		// In case of error we mint back the native token
+		receiver, err := sdk.AccAddressFromBech32(data.Buyer)
+		if err != nil {
+			return err
+		}
 
-		// TODO: failed acknowledgement logic
-		_ = dispatchedAck.Error
+		if err := k.UnlockTokens(
+			ctx,
+			packet.SourcePort,
+			packet.SourceChannel,
+			receiver,
+			sdk.NewCoin(data.PriceDenom, sdk.NewInt(int64(data.Amount*data.Price))),
+		); err != nil {
+			return err
+		}
 
 		return nil
 	case *channeltypes.Acknowledgement_Result:
@@ -97,7 +144,37 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 			return errors.New("cannot unmarshal acknowledgment")
 		}
 
-		// TODO: successful acknowledgement logic
+		// Get the sell order book
+		pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
+		book, found := k.GetBuyOrderBook(ctx, pairIndex)
+		if !found {
+			panic("buy order book must exist")
+		}
+
+		// Append the remaining amount of the order
+		newBook, _, err := types.AppendOrder(
+			book,
+			data.Buyer,
+			packetAck.RemainingAmount,
+			data.Price,
+		)
+		if err != nil {
+			return err
+		}
+		book = newBook.(types.BuyOrderBook)
+
+		// Mint the purchase
+		voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.AmountDenom)
+		receiver, err := sdk.AccAddressFromBech32(data.Buyer)
+		if err != nil {
+			return err
+		}
+		if err := k.MintTokens(ctx, receiver, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(packetAck.Purchase)))); err != nil {
+			return err
+		}
+
+		// Save the new order book
+		k.SetBuyOrderBook(ctx, book)
 
 		return nil
 	default:
@@ -108,8 +185,21 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 
 // OnTimeoutBuyOrderPacket responds to the case where a packet has not been transmitted because of a timeout
 func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) error {
+	// In case of error we mint back the native token
+	receiver, err := sdk.AccAddressFromBech32(data.Buyer)
+	if err != nil {
+		return err
+	}
 
-	// TODO: packet timeout logic
+	if err := k.UnlockTokens(
+		ctx,
+		packet.SourcePort,
+		packet.SourceChannel,
+		receiver,
+		sdk.NewCoin(data.PriceDenom, sdk.NewInt(int64(data.Amount*data.Price))),
+	); err != nil {
+		return err
+	}
 
 	return nil
 }
