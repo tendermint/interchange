@@ -170,7 +170,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 
 		// Mint the purchase
 		if packetAck.Purchase > 0 {
-			voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.AmountDenom)
+			voucherDenom := types.VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
 			receiver, err := sdk.AccAddressFromBech32(data.Buyer)
 			if err != nil {
 				return err
