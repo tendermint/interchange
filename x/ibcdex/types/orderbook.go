@@ -1,8 +1,8 @@
 package types
 
 import (
-"errors"
-"sort"
+	"errors"
+	"sort"
 )
 
 const (

@@ -20,7 +20,7 @@ type liquidateBuyRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated types.Order
-	Purchase       int32
+	Purchase   int32
 	Match      bool
 	Filled     bool
 }
@@ -160,7 +160,7 @@ type fillBuyRes struct {
 	Book       []types.Order
 	Remaining  types.Order
 	Liquidated []types.Order
-	Purchase       int32
+	Purchase   int32
 	Filled     bool
 }
 
@@ -193,7 +193,7 @@ func TestFillBuyOrder(t *testing.T) {
 		Book:       []types.Order{},
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Purchase:       int32(0),
+		Purchase:   int32(0),
 		Filled:     false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -208,7 +208,7 @@ func TestFillBuyOrder(t *testing.T) {
 		Book:       inputBook,
 		Remaining:  inputOrder,
 		Liquidated: []types.Order(nil),
-		Purchase:       int32(0),
+		Purchase:   int32(0),
 		Filled:     false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
@@ -224,8 +224,8 @@ func TestFillBuyOrder(t *testing.T) {
 		Liquidated: []types.Order{
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 		},
-		Purchase:   int32(30),
-		Filled: false,
+		Purchase: int32(30),
+		Filled:   false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
 
@@ -241,23 +241,23 @@ func TestFillBuyOrder(t *testing.T) {
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 			{Id: 1, Creator: MockAccount("1"), Amount: 30, Price: 20},
 		},
-		Purchase:   int32(30+30),
-		Filled: true,
+		Purchase: int32(30 + 30),
+		Filled:   true,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
 
 	// Not filled, sell order book liquidated
 	inputOrder = types.Order{Id: 10, Creator: MockAccount("1"), Amount: 300, Price: 30}
 	expected = fillBuyRes{
-		Book: []types.Order{},
+		Book:      []types.Order{},
 		Remaining: types.Order{Id: 10, Creator: MockAccount("1"), Amount: 20, Price: 30},
 		Liquidated: []types.Order{
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 			{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 		},
-		Purchase:   int32(30+200+50),
-		Filled: false,
+		Purchase: int32(30 + 200 + 50),
+		Filled:   false,
 	}
 	simulateFillBuyOrder(t, inputBook, inputOrder, expected)
 }

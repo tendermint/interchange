@@ -236,28 +236,28 @@ func TestFillSellOrder(t *testing.T) {
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 			{Id: 1, Creator: MockAccount("1"), Amount: 190, Price: 20},
 		},
-		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 18},
+		Remaining: types.Order{Id: 10, Creator: MockAccount("1"), Amount: 0, Price: 18},
 		Liquidated: []types.Order{
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 			{Id: 1, Creator: MockAccount("1"), Amount: 10, Price: 20},
 		},
-		Gain:       int32(50*25+10*20),
-		Filled:     true,
+		Gain:   int32(50*25 + 10*20),
+		Filled: true,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
 
 	// Not filled, buy order book liquidated
 	inputOrder = types.Order{Id: 10, Creator: MockAccount("1"), Amount: 300, Price: 10}
 	expected = fillSellRes{
-		Book: []types.Order{},
-		Remaining:  types.Order{Id: 10, Creator: MockAccount("1"), Amount: 20, Price: 10},
+		Book:      []types.Order{},
+		Remaining: types.Order{Id: 10, Creator: MockAccount("1"), Amount: 20, Price: 10},
 		Liquidated: []types.Order{
 			{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 			{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
 			{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
 		},
-		Gain:       int32(50*25+200*20+30*15),
-		Filled:     false,
+		Gain:   int32(50*25 + 200*20 + 30*15),
+		Filled: false,
 	}
 	simulateFillSellOrder(t, inputBook, inputOrder, expected)
 }

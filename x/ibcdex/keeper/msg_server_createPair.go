@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"errors"
 	"context"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"

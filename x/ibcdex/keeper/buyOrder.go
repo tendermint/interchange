@@ -83,7 +83,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 	// Fill buy order
 	book, remaining, liquidated, purchase, _ := types.FillBuyOrder(book, types.Order{
 		Amount: data.Amount,
-		Price: data.Price,
+		Price:  data.Price,
 	})
 
 	// Return remaining amount and gains

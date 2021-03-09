@@ -4,7 +4,6 @@ import (
 	"sort"
 )
 
-
 // sort.Interface
 func (book SellOrderBook) Len() int {
 	return len(book.Orders)
