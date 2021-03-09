@@ -152,29 +152,33 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 		}
 
 		// Append the remaining amount of the order
-		newBook, _, err := types.AppendOrder(
-			book,
-			data.Seller,
-			packetAck.RemainingAmount,
-			data.Price,
-		)
-		if err != nil {
-			return err
+		if packetAck.RemainingAmount > 0 {
+			newBook, _, err := types.AppendOrder(
+				book,
+				data.Seller,
+				packetAck.RemainingAmount,
+				data.Price,
+			)
+			if err != nil {
+				return err
+			}
+			book = newBook.(types.SellOrderBook)
+
+			// Save the new order book
+			k.SetSellOrderBook(ctx, book)
 		}
-		book = newBook.(types.SellOrderBook)
 
 		// Mint the gains
-		voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
-		receiver, err := sdk.AccAddressFromBech32(data.Seller)
-		if err != nil {
-			return err
+		if packetAck.Gain > 0 {
+			voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
+			receiver, err := sdk.AccAddressFromBech32(data.Seller)
+			if err != nil {
+				return err
+			}
+			if err := k.MintTokens(ctx, receiver, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(packetAck.Gain)))); err != nil {
+				return err
+			}
 		}
-		if err := k.MintTokens(ctx, receiver, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(packetAck.Gain)))); err != nil {
-			return err
-		}
-
-		// Save the new order book
-		k.SetSellOrderBook(ctx, book)
 
 		return nil
 	default:
