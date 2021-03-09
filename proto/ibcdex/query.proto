@@ -4,6 +4,7 @@ package tendermint.interchange.ibcdex;
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "ibcdex/slog.proto";
 import "ibcdex/buyOrderBook.proto";
 import "ibcdex/sellOrderBook.proto";
 
@@ -12,6 +13,13 @@ option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
+	rpc Slog(QueryGetSlogRequest) returns (QueryGetSlogResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/slog/{id}";
+	}
+	rpc SlogAll(QueryAllSlogRequest) returns (QueryAllSlogResponse) {
+		option (google.api.http).get = "/tendermint/interchange/ibcdex/slog";
+	}
+
 	rpc BuyOrderBook(QueryGetBuyOrderBookRequest) returns (QueryGetBuyOrderBookResponse) {
 		option (google.api.http).get = "/tendermint/interchange/ibcdex/buyOrderBook/{index}";
 	}
@@ -29,6 +37,22 @@ service Query {
 }
 
 // this line is used by starport scaffolding # 3
+message QueryGetSlogRequest {
+	string id = 1;
+}
+
+message QueryGetSlogResponse {
+	Slog Slog = 1;
+}
+
+message QueryAllSlogRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllSlogResponse {
+	repeated Slog Slog = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
 message QueryGetBuyOrderBookRequest {
 	string index = 1;
 }

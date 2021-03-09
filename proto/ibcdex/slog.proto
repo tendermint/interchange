@@ -1,0 +1,12 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+import "gogoproto/gogo.proto";
+
+message Slog {
+  string creator = 1;
+  string id = 2;
+  string log = 3; 
+}

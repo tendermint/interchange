@@ -13,6 +13,7 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		PortId: PortID,
 		// this line is used by starport scaffolding # genesis/types/default
+		SlogList:          []*Slog{},
 		BuyOrderBookList:  []*BuyOrderBook{},
 		SellOrderBookList: []*SellOrderBook{},
 	}
@@ -26,6 +27,15 @@ func (gs GenesisState) Validate() error {
 	}
 
 	// this line is used by starport scaffolding # genesis/types/validate
+	// Check for duplicated ID in slog
+	slogIdMap := make(map[string]bool)
+
+	for _, elem := range gs.SlogList {
+		if _, ok := slogIdMap[elem.Id]; ok {
+			return fmt.Errorf("duplicated id for slog")
+		}
+		slogIdMap[elem.Id] = true
+	}
 	// Check for duplicated index in buyOrderBook
 	buyOrderBookIndexMap := make(map[string]bool)
 

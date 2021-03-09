@@ -8,6 +8,9 @@ option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 // Msg defines the Msg service.
 service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
+  rpc CreateSlog(MsgCreateSlog) returns (MsgCreateSlogResponse);
+  rpc UpdateSlog(MsgUpdateSlog) returns (MsgUpdateSlogResponse);
+  rpc DeleteSlog(MsgDeleteSlog) returns (MsgDeleteSlogResponse);
   rpc CancelBuyOrder(MsgCancelBuyOrder) returns (MsgCancelBuyOrderResponse);
   rpc CancelSellOrder(MsgCancelSellOrder) returns (MsgCancelSellOrderResponse);
   rpc SendBuyOrder(MsgSendBuyOrder) returns (MsgSendBuyOrderResponse);
@@ -16,6 +19,30 @@ service Msg {
 }
 
 // this line is used by starport scaffolding # proto/tx/message
+message MsgCreateSlog {
+  string creator = 1;
+  string log = 2;
+}
+
+message MsgCreateSlogResponse {
+  string id = 1;
+}
+
+message MsgUpdateSlog {
+  string creator = 1;
+  string id = 2;
+  string log = 3;
+}
+
+message MsgUpdateSlogResponse { }
+
+message MsgDeleteSlog {
+  string creator = 1;
+  string id = 2;
+}
+
+message MsgDeleteSlogResponse { }
+
 message MsgCancelBuyOrder {
   string creator = 1;
   string port = 2;

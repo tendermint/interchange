@@ -9,6 +9,10 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgCreateSlog{}, "ibcdex/CreateSlog", nil)
+	cdc.RegisterConcrete(&MsgUpdateSlog{}, "ibcdex/UpdateSlog", nil)
+	cdc.RegisterConcrete(&MsgDeleteSlog{}, "ibcdex/DeleteSlog", nil)
+
 	cdc.RegisterConcrete(&MsgCancelBuyOrder{}, "ibcdex/CancelBuyOrder", nil)
 
 	cdc.RegisterConcrete(&MsgCancelSellOrder{}, "ibcdex/CancelSellOrder", nil)
@@ -23,6 +27,11 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgCreateSlog{},
+		&MsgUpdateSlog{},
+		&MsgDeleteSlog{},
+	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCancelBuyOrder{},
 	)

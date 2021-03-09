@@ -73,8 +73,6 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 		return packetAck, err
 	}
 
-	k.AppendLogger(ctx, "", "start")
-
 	// Check if the buy order book exists
 	pairIndex := types.OrderBookIndex(packet.SourcePort, packet.SourceChannel, data.AmountDenom, data.PriceDenom)
 	book, found := k.GetBuyOrderBook(ctx, pairIndex)
@@ -82,15 +80,11 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 		return packetAck, errors.New("the pair doesn't exist")
 	}
 
-	k.AppendLogger(ctx, "", "order book retrieved")
-
 	// Fill sell order
 	book, remaining, liquidated, gain, _ := types.FillSellOrder(book, types.Order{
 		Amount: data.Amount,
 		Price:  data.Price,
 	})
-
-	k.AppendLogger(ctx, "", "order filled")
 
 	// Return remaining amount and gains
 	packetAck.RemainingAmount = remaining.Amount
@@ -113,12 +107,8 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 		}
 	}
 
-	k.AppendLogger(ctx, "", "liquidation")
-
 	// Save the new order book
 	k.SetBuyOrderBook(ctx, book)
-
-	k.AppendLogger(ctx, "", "end")
 
 	return packetAck, nil
 }

@@ -10,6 +10,14 @@ import (
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	// this line is used by starport scaffolding # genesis/module/init
+	// Set all the slog
+	for _, elem := range genState.SlogList {
+		k.SetSlog(ctx, *elem)
+	}
+
+	// Set slog count
+	k.SetSlogCount(ctx, int64(len(genState.SlogList)))
+
 	// Set all the buyOrderBook
 	for _, elem := range genState.BuyOrderBookList {
 		k.SetBuyOrderBook(ctx, *elem)
@@ -38,6 +46,13 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
 	// this line is used by starport scaffolding # genesis/module/export
+	// Get all slog
+	slogList := k.GetAllSlog(ctx)
+	for _, elem := range slogList {
+		elem := elem
+		genesis.SlogList = append(genesis.SlogList, &elem)
+	}
+
 	// Get all buyOrderBook
 	buyOrderBookList := k.GetAllBuyOrderBook(ctx)
 	for _, elem := range buyOrderBookList {

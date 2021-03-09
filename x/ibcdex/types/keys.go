@@ -55,3 +55,8 @@ func OrderBookIndex(
 		targetDenom,
 	)
 }
+
+const (
+	SlogKey      = "Slog-value-"
+	SlogCountKey = "Slog-count-"
+)
