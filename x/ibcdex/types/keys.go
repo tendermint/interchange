@@ -60,3 +60,7 @@ const (
 	SlogKey      = "Slog-value-"
 	SlogCountKey = "Slog-count-"
 )
+
+const (
+	DenomTraceKey = "DenomTrace-value-"
+)

@@ -13,6 +13,7 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		PortId: PortID,
 		// this line is used by starport scaffolding # genesis/types/default
+		DenomTraceList:    []*DenomTrace{},
 		SlogList:          []*Slog{},
 		BuyOrderBookList:  []*BuyOrderBook{},
 		SellOrderBookList: []*SellOrderBook{},
@@ -27,6 +28,15 @@ func (gs GenesisState) Validate() error {
 	}
 
 	// this line is used by starport scaffolding # genesis/types/validate
+	// Check for duplicated index in denomTrace
+	denomTraceIndexMap := make(map[string]bool)
+
+	for _, elem := range gs.DenomTraceList {
+		if _, ok := denomTraceIndexMap[elem.Index]; ok {
+			return fmt.Errorf("duplicated index for denomTrace")
+		}
+		denomTraceIndexMap[elem.Index] = true
+	}
 	// Check for duplicated ID in slog
 	slogIdMap := make(map[string]bool)
 

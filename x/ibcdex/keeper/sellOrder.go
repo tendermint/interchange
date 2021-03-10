@@ -95,7 +95,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 		liquidation := liquidation
 
 		// Mint tokens for local account
-		voucherDenom := types.VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
+		voucherDenom := VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
 
 		addr, err := sdk.AccAddressFromBech32(liquidation.Creator)
 		if err != nil {
@@ -170,7 +170,7 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 
 		// Mint the gains
 		if packetAck.Gain > 0 {
-			voucherDenom := types.VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
+			voucherDenom := VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
 			receiver, err := sdk.AccAddressFromBech32(data.Seller)
 			if err != nil {
 				return err
