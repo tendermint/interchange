@@ -24,15 +24,21 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 	if err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
-	if err := k.LockTokens(
+
+	// Use SafeBurn to ensure no new native tokens are minted
+	if err := k.SafeBurn(
 		ctx,
 		msg.Port,
 		msg.ChannelID,
 		sender,
-		sdk.NewCoin(msg.PriceDenom, sdk.NewInt(int64(msg.Amount*msg.Price))),
+		msg.PriceDenom,
+		msg.Amount*msg.Price,
 	); err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
+
+	// Save the voucher received on the other chain, to have the ability to resolve it into the original denom
+	k.SaveVoucherDenom(ctx, msg.Port, msg.ChannelID, msg.PriceDenom)
 
 	// Construct the packet
 	var packet types.BuyOrderPacketData

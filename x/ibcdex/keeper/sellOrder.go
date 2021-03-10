@@ -90,19 +90,31 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 	packetAck.RemainingAmount = remaining.Amount
 	packetAck.Gain = gain
 
-	// Dispatch liquidated buy order
+	// Before distributing sales, we resolve the denom
+	// First we check if the denom received comes from this chain originally
+	finalAmountDenom, saved := k.OriginalDenom(ctx, packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
+	if !saved {
+		// If it was not from this chain we use voucher as denom
+		finalAmountDenom = VoucherDenom(packet.SourcePort, packet.SourceChannel, data.AmountDenom)
+	}
+
+	// Dispatch liquidated buy orders
 	for _, liquidation := range liquidated {
 		liquidation := liquidation
-
-		// Mint tokens for local account
-		voucherDenom := VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.AmountDenom)
 
 		addr, err := sdk.AccAddressFromBech32(liquidation.Creator)
 		if err != nil {
 			return packetAck, err
 		}
 
-		if err := k.MintTokens(ctx, addr, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(liquidation.Amount)))); err != nil {
+		if err := k.SafeMint(
+			ctx,
+			packet.DestinationPort,
+			packet.DestinationChannel,
+			addr,
+			finalAmountDenom,
+			liquidation.Amount,
+		); err != nil {
 			return packetAck, err
 		}
 	}
@@ -124,12 +136,13 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 			return err
 		}
 
-		if err := k.UnlockTokens(
+		if err := k.SafeMint(
 			ctx,
 			packet.SourcePort,
 			packet.SourceChannel,
 			receiver,
-			sdk.NewCoin(data.AmountDenom, sdk.NewInt(int64(data.Amount))),
+			data.AmountDenom,
+			data.Amount,
 		); err != nil {
 			return err
 		}
@@ -170,12 +183,24 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 
 		// Mint the gains
 		if packetAck.Gain > 0 {
-			voucherDenom := VoucherDenom(packet.SourcePort, packet.SourceChannel, data.PriceDenom)
 			receiver, err := sdk.AccAddressFromBech32(data.Seller)
 			if err != nil {
 				return err
 			}
-			if err := k.MintTokens(ctx, receiver, sdk.NewCoin(voucherDenom, sdk.NewInt(int64(packetAck.Gain)))); err != nil {
+
+			finalPriceDenom, saved := k.OriginalDenom(ctx, packet.SourcePort, packet.SourceChannel, data.PriceDenom)
+			if !saved {
+				// If it was not from this chain we use voucher as denom
+				finalPriceDenom = VoucherDenom(packet.DestinationPort, packet.DestinationChannel, data.PriceDenom)
+			}
+			if err := k.SafeMint(
+				ctx,
+				packet.SourcePort,
+				packet.SourceChannel,
+				receiver,
+				finalPriceDenom,
+				packetAck.Gain,
+			); err != nil {
 				return err
 			}
 		}
@@ -195,12 +220,13 @@ func (k Keeper) OnTimeoutSellOrderPacket(ctx sdk.Context, packet channeltypes.Pa
 		return err
 	}
 
-	if err := k.UnlockTokens(
+	if err := k.SafeMint(
 		ctx,
 		packet.SourcePort,
 		packet.SourceChannel,
 		receiver,
-		sdk.NewCoin(data.AmountDenom, sdk.NewInt(int64(data.Amount))),
+		data.AmountDenom,
+		data.Amount,
 	); err != nil {
 		return err
 	}

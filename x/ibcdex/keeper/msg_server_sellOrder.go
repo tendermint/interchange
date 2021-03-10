@@ -19,20 +19,25 @@ func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOr
 		return &types.MsgSendSellOrderResponse{}, errors.New("the pair doesn't exist")
 	}
 
-	// Lock the token to send
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return &types.MsgSendSellOrderResponse{}, err
 	}
-	if err := k.LockTokens(
+
+	// Use SafeBurn to ensure no new native tokens are minted
+	if err := k.SafeBurn(
 		ctx,
 		msg.Port,
 		msg.ChannelID,
 		sender,
-		sdk.NewCoin(msg.AmountDenom, sdk.NewInt(int64(msg.Amount))),
+		msg.AmountDenom,
+		msg.Amount,
 	); err != nil {
 		return &types.MsgSendSellOrderResponse{}, err
 	}
+
+	// Save the voucher received on the other chain, to have the ability to resolve it into the original denom
+	k.SaveVoucherDenom(ctx, msg.Port, msg.ChannelID, msg.AmountDenom)
 
 	// Construct the packet
 	var packet types.SellOrderPacketData

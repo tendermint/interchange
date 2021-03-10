@@ -4,7 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	"github.com/tendermint/interchange/x/ibcdex/types"
-	"strings"
 )
 
 // VoucherDenom returns the voucher of the denom from the port ID and channel ID
@@ -24,11 +23,6 @@ func VoucherDenom(port string, channel string, denom string) string {
 	return voucher
 }
 
-// IsIBCToken checks if the token came from the IBC module
-func IsIBCToken(denom string) bool {
-	return strings.HasPrefix(denom, "ibc/")
-}
-
 // SaveVoucherDenom saves the voucher denom to be able to convert it back later
 func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, denom string) {
 	voucher := VoucherDenom(port, channel, denom)
@@ -37,10 +31,10 @@ func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, d
 	_, saved := k.GetDenomTrace(ctx, voucher)
 	if !saved {
 		k.SetDenomTrace(ctx, types.DenomTrace{
-			Index: voucher,
-			Port: port,
+			Index:   voucher,
+			Port:    port,
 			Channel: channel,
-			Origin: denom,
+			Origin:  denom,
 		})
 	}
 }

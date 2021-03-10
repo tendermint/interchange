@@ -35,5 +35,21 @@ func (k msgServer) CancelSellOrder(goCtx context.Context, msg *types.MsgCancelSe
 	book = newBook.(types.SellOrderBook)
 	k.SetSellOrderBook(ctx, book)
 
+	// Refund seller with remaining amount
+	seller, err := sdk.AccAddressFromBech32(order.Creator)
+	if err != nil {
+		return &types.MsgCancelSellOrderResponse{}, err
+	}
+	if err := k.SafeMint(
+		ctx,
+		msg.Port,
+		msg.Channel,
+		seller,
+		msg.AmountDenom,
+		order.Amount,
+	); err != nil {
+		return &types.MsgCancelSellOrderResponse{}, err
+	}
+
 	return &types.MsgCancelSellOrderResponse{}, nil
 }

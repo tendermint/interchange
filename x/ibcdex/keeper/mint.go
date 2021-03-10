@@ -5,7 +5,76 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	"github.com/tendermint/interchange/x/ibcdex/types"
+	"strings"
 )
+
+// isIBCToken checks if the token came from the IBC module
+func isIBCToken(denom string) bool {
+	return strings.HasPrefix(denom, "ibc/")
+}
+
+func (k Keeper) SafeBurn(
+	ctx sdk.Context,
+	port string,
+	channel string,
+	sender sdk.AccAddress,
+	denom string,
+	amount int32,
+) error {
+	if isIBCToken(denom) {
+		// Burn the tokens
+		if err := k.BurnTokens(
+			ctx, sender,
+			sdk.NewCoin(denom, sdk.NewInt(int64(amount))),
+		); err != nil {
+			return err
+		}
+	} else {
+		// Lock the token to send
+		if err := k.LockTokens(
+			ctx,
+			port,
+			channel,
+			sender,
+			sdk.NewCoin(denom, sdk.NewInt(int64(amount))),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (k Keeper) SafeMint(
+	ctx sdk.Context,
+	port string,
+	channel string,
+	receiver sdk.AccAddress,
+	denom string,
+	amount int32,
+) error {
+	if isIBCToken(denom) {
+		// Mint IBC tokens
+		if err := k.MintTokens(
+			ctx,
+			receiver,
+			sdk.NewCoin(denom, sdk.NewInt(int64(amount))),
+		); err != nil {
+			return err
+		}
+	} else {
+		// Unlock native tokens
+		if err := k.UnlockTokens(
+			ctx,
+			port,
+			channel,
+			receiver,
+			sdk.NewCoin(denom, sdk.NewInt(int64(amount))),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 func (k Keeper) BurnTokens(
 	ctx sdk.Context,
