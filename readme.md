@@ -1,6 +1,6 @@
 # interchange
 
-**interchange** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
+The **interchange** blockchain is built using Cosmos SDK and Tendermint and is created with [Starport](https://github.com/tendermint/starport).
 
 ## Get started
 
@@ -8,15 +8,15 @@
 starport serve
 ```
 
-`serve` command installs dependencies, builds, initializes and starts your blockchain in development.
+`serve` command installs dependencies, builds, initializes, and starts your blockchain in development.
 
 ## Configure
 
-Your blockchain in development can be configured with `config.yml`. To learn more see the [reference](https://github.com/tendermint/starport#documentation).
+Configure your blockchain in development with `config.yml`. See the [Starport configuration](https://github.com/tendermint/starport/tree/develop/docs) docs.
 
 ## Launch
 
-To launch your blockchain live on mutliple nodes use `starport network` commands. Learn more about [Starport Network](https://github.com/tendermint/spn).
+To launch your blockchain live on multiple nodes, use `starport network` commands. Learn more about [Starport Network](https://github.com/tendermint/spn).
 
 ## Learn more
 
