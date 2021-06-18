@@ -150,6 +150,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		ibcdextypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -340,6 +341,7 @@ func New(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		scopedIbcdexKeeper,
+		app.BankKeeper,
 	)
 	ibcdexModule := ibcdex.NewAppModule(appCodec, app.IbcdexKeeper)
 

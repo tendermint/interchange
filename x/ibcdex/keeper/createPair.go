@@ -112,7 +112,7 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 		book := types.NewSellOrderBook(data.SourceDenom, data.TargetDenom)
 		book.Index = pairIndex
 		k.SetSellOrderBook(ctx, book)
-		
+
 		return nil
 	default:
 		// The counter-party module doesn't implement the correct acknowledgment format

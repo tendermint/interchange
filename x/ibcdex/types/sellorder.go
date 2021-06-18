@@ -1,4 +1,3 @@
-package types
 // x/ibcdex/types/sellorder.go
 package types
 
