@@ -1,0 +1,12 @@
+// proto/ibcdex/order.proto
+syntax = "proto3";
+package username.interchange.ibcdex;
+
+option go_package = "github.com/username/interchange/x/ibcdex/types";
+
+message Order {
+  int32 id = 1;
+  string creator = 2;
+  int32 amount = 3;
+  int32 price = 4;
+}

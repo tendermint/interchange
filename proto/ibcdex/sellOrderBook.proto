@@ -5,10 +5,14 @@ option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 
 import "gogoproto/gogo.proto";
 
+import "ibcdex/order.proto"; // <--
+
+
 message SellOrderBook {
   string creator = 1;
   string index = 2;
   int32 orderIDTrack = 3; 
   string amountDenom = 4; 
-  string priceDenom = 5; 
+  string priceDenom = 5;
+  repeated Order orders = 6;  // <--
 }
