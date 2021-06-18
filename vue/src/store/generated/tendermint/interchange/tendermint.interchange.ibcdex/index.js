@@ -3,6 +3,7 @@ import { txClient, queryClient, MissingWalletError } from './module';
 import { SpVuexError } from '@starport/vuex';
 import { BuyOrderBook } from "./module/types/ibcdex/buyOrderBook";
 import { DenomTrace } from "./module/types/ibcdex/denomTrace";
+import { Order } from "./module/types/ibcdex/order";
 import { IbcdexPacketData } from "./module/types/ibcdex/packet";
 import { NoData } from "./module/types/ibcdex/packet";
 import { BuyOrderPacketData } from "./module/types/ibcdex/packet";
@@ -12,7 +13,7 @@ import { SellOrderPacketAck } from "./module/types/ibcdex/packet";
 import { CreatePairPacketData } from "./module/types/ibcdex/packet";
 import { CreatePairPacketAck } from "./module/types/ibcdex/packet";
 import { SellOrderBook } from "./module/types/ibcdex/sellOrderBook";
-export { BuyOrderBook, DenomTrace, IbcdexPacketData, NoData, BuyOrderPacketData, BuyOrderPacketAck, SellOrderPacketData, SellOrderPacketAck, CreatePairPacketData, CreatePairPacketAck, SellOrderBook };
+export { BuyOrderBook, DenomTrace, Order, IbcdexPacketData, NoData, BuyOrderPacketData, BuyOrderPacketAck, SellOrderPacketData, SellOrderPacketAck, CreatePairPacketData, CreatePairPacketAck, SellOrderBook };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -55,6 +56,7 @@ const getDefaultState = () => {
         _Structure: {
             BuyOrderBook: getStructure(BuyOrderBook.fromPartial({})),
             DenomTrace: getStructure(DenomTrace.fromPartial({})),
+            Order: getStructure(Order.fromPartial({})),
             IbcdexPacketData: getStructure(IbcdexPacketData.fromPartial({})),
             NoData: getStructure(NoData.fromPartial({})),
             BuyOrderPacketData: getStructure(BuyOrderPacketData.fromPartial({})),
@@ -243,20 +245,20 @@ export default {
                 throw new SpVuexError('QueryClient:QuerySellOrderBookAll', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async sendMsgCancelBuyOrder({ rootGetters }, { value, fee = [], memo = '' }) {
+        async sendMsgSendCreatePair({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgCancelBuyOrder(value);
+                const msg = await txClient.msgSendCreatePair(value);
                 const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
                         gas: "200000" }, memo });
                 return result;
             }
             catch (e) {
                 if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Init', 'Could not initialize signing client. Wallet is required.');
+                    throw new SpVuexError('TxClient:MsgSendCreatePair:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Send', 'Could not broadcast Tx: ' + e.message);
+                    throw new SpVuexError('TxClient:MsgSendCreatePair:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -277,6 +279,23 @@ export default {
                 }
             }
         },
+        async sendMsgCancelBuyOrder({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgCancelBuyOrder(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Send', 'Could not broadcast Tx: ' + e.message);
+                }
+            }
+        },
         async sendMsgSendSellOrder({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -291,23 +310,6 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgSendSellOrder:Send', 'Could not broadcast Tx: ' + e.message);
-                }
-            }
-        },
-        async sendMsgSendCreatePair({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgSendCreatePair(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgSendCreatePair:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSendCreatePair:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -328,18 +330,18 @@ export default {
                 }
             }
         },
-        async MsgCancelBuyOrder({ rootGetters }, { value }) {
+        async MsgSendCreatePair({ rootGetters }, { value }) {
             try {
                 const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgCancelBuyOrder(value);
+                const msg = await txClient.msgSendCreatePair(value);
                 return msg;
             }
             catch (e) {
                 if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Init', 'Could not initialize signing client. Wallet is required.');
+                    throw new SpVuexError('TxClient:MsgSendCreatePair:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Create', 'Could not create message: ' + e.message);
+                    throw new SpVuexError('TxClient:MsgSendCreatePair:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
@@ -358,6 +360,21 @@ export default {
                 }
             }
         },
+        async MsgCancelBuyOrder({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgCancelBuyOrder(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgCancelBuyOrder:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
         async MsgSendSellOrder({ rootGetters }, { value }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -370,21 +387,6 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgSendSellOrder:Create', 'Could not create message: ' + e.message);
-                }
-            }
-        },
-        async MsgSendCreatePair({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgSendCreatePair(value);
-                return msg;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgSendCreatePair:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSendCreatePair:Create', 'Could not create message: ' + e.message);
                 }
             }
         },

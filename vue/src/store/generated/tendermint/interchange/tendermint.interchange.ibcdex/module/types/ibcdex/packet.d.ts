@@ -20,6 +20,8 @@ export interface BuyOrderPacketData {
     amount: number;
     priceDenom: string;
     price: number;
+    /** <-- */
+    buyer: string;
 }
 /** BuyOrderPacketAck defines a struct for the packet acknowledgment */
 export interface BuyOrderPacketAck {
@@ -32,6 +34,8 @@ export interface SellOrderPacketData {
     amount: number;
     priceDenom: string;
     price: number;
+    /** <-- */
+    seller: string;
 }
 /** SellOrderPacketAck defines a struct for the packet acknowledgment */
 export interface SellOrderPacketAck {

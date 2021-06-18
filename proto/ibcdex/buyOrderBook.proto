@@ -4,6 +4,7 @@ package tendermint.interchange.ibcdex;
 option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 
 import "gogoproto/gogo.proto";
+
 import "ibcdex/order.proto"; // <--
 
 message BuyOrderBook {

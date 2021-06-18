@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { Order } from '../ibcdex/order';
 import { Writer, Reader } from 'protobufjs/minimal';
 export const protobufPackage = 'tendermint.interchange.ibcdex';
 const baseSellOrderBook = { creator: '', index: '', orderIDTrack: 0, amountDenom: '', priceDenom: '' };
@@ -19,12 +20,16 @@ export const SellOrderBook = {
         if (message.priceDenom !== '') {
             writer.uint32(42).string(message.priceDenom);
         }
+        for (const v of message.orders) {
+            Order.encode(v, writer.uint32(50).fork()).ldelim();
+        }
         return writer;
     },
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
         const message = { ...baseSellOrderBook };
+        message.orders = [];
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -43,6 +48,9 @@ export const SellOrderBook = {
                 case 5:
                     message.priceDenom = reader.string();
                     break;
+                case 6:
+                    message.orders.push(Order.decode(reader, reader.uint32()));
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -52,6 +60,7 @@ export const SellOrderBook = {
     },
     fromJSON(object) {
         const message = { ...baseSellOrderBook };
+        message.orders = [];
         if (object.creator !== undefined && object.creator !== null) {
             message.creator = String(object.creator);
         }
@@ -82,6 +91,11 @@ export const SellOrderBook = {
         else {
             message.priceDenom = '';
         }
+        if (object.orders !== undefined && object.orders !== null) {
+            for (const e of object.orders) {
+                message.orders.push(Order.fromJSON(e));
+            }
+        }
         return message;
     },
     toJSON(message) {
@@ -91,10 +105,17 @@ export const SellOrderBook = {
         message.orderIDTrack !== undefined && (obj.orderIDTrack = message.orderIDTrack);
         message.amountDenom !== undefined && (obj.amountDenom = message.amountDenom);
         message.priceDenom !== undefined && (obj.priceDenom = message.priceDenom);
+        if (message.orders) {
+            obj.orders = message.orders.map((e) => (e ? Order.toJSON(e) : undefined));
+        }
+        else {
+            obj.orders = [];
+        }
         return obj;
     },
     fromPartial(object) {
         const message = { ...baseSellOrderBook };
+        message.orders = [];
         if (object.creator !== undefined && object.creator !== null) {
             message.creator = object.creator;
         }
@@ -124,6 +145,11 @@ export const SellOrderBook = {
         }
         else {
             message.priceDenom = '';
+        }
+        if (object.orders !== undefined && object.orders !== null) {
+            for (const e of object.orders) {
+                message.orders.push(Order.fromPartial(e));
+            }
         }
         return message;
     }

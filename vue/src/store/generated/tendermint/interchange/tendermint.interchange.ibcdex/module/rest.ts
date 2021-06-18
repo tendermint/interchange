@@ -17,6 +17,7 @@ export interface IbcdexBuyOrderBook {
   orderIDTrack?: number;
   amountDenom?: string;
   priceDenom?: string;
+  orders?: IbcdexOrder[];
 }
 
 export interface IbcdexDenomTrace {
@@ -36,6 +37,18 @@ export type IbcdexMsgSendBuyOrderResponse = object;
 export type IbcdexMsgSendCreatePairResponse = object;
 
 export type IbcdexMsgSendSellOrderResponse = object;
+
+export interface IbcdexOrder {
+  /** @format int32 */
+  id?: number;
+  creator?: string;
+
+  /** @format int32 */
+  amount?: number;
+
+  /** @format int32 */
+  price?: number;
+}
 
 export interface IbcdexQueryAllBuyOrderBookResponse {
   BuyOrderBook?: IbcdexBuyOrderBook[];
@@ -102,6 +115,7 @@ export interface IbcdexSellOrderBook {
   orderIDTrack?: number;
   amountDenom?: string;
   priceDenom?: string;
+  orders?: IbcdexOrder[];
 }
 
 export interface ProtobufAny {
