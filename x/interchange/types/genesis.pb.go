@@ -22,7 +22,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the capability module's genesis state.
+// GenesisState defines the interchange module's genesis state.
 type GenesisState struct {
 }
 
