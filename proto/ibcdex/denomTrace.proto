@@ -1,0 +1,14 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+import "gogoproto/gogo.proto";
+
+message DenomTrace {
+  string creator = 1;
+  string index = 2;
+  string port = 3; 
+  string channel = 4; 
+  string origin = 5; 
+}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package tendermint.interchange.ibcdex;
+
+option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
+
+import "gogoproto/gogo.proto";
+
+message BuyOrderBook {
+  string creator = 1;
+  string index = 2;
+  int32 orderIDTrack = 3; 
+  string amountDenom = 4; 
+  string priceDenom = 5; 
+}
