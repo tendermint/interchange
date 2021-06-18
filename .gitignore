@@ -1,3 +1,5 @@
-vue/node_modules
-vue/dist
-secret.yml
+../vue/node_modules
+../vue/dist
+release/
+.DS_Store
+.idea/
