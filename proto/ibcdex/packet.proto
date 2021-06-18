@@ -23,6 +23,7 @@ message BuyOrderPacketData {
   int32 amount = 2;
   string priceDenom = 3;
   int32 price = 4;
+  string seller = 5;  // <--
 }
 
 // BuyOrderPacketAck defines a struct for the packet acknowledgment
