@@ -16,45 +16,9 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	 return b.Book.appendOrder(creator, amount, price, Increasing)
  }
 
-// FillSellOrder try to fill the sell order with the order book and returns all the side effects
-func (b *BuyOrderBook) FillSellOrder(order Order) (
-	remainingSellOrder Order,
-	liquidated []Order,
-	gain int32,
-	filled bool,
-) {
-	var liquidatedList []Order
-	totalGain := int32(0)
-	remainingSellOrder = order
-
-	// Liquidate as long as there is match
-	for {
-		var match bool
-		var liquidation Order
-		remainingSellOrder, liquidation, gain, match, filled = b.liquidateFromSellOrder(
-			remainingSellOrder,
-		)
-		if !match {
-			break
-		}
-
-		// Update gains
-		totalGain += gain
-
-		// Update liquidated
-		liquidatedList = append(liquidatedList, liquidation)
-
-		if filled {
-			break
-		}
-	}
-
-	return remainingSellOrder, liquidatedList, totalGain, filled
-}
-
- // liquidateFromSellOrder liquidates the first buy order of the book from the sell order
+ // LiquidateFromSellOrder liquidates the first buy order of the book from the sell order
  // if no match is found, return false for match
- func (b *BuyOrderBook) liquidateFromSellOrder(order Order) (
+ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 	 remainingSellOrder Order,
 	 liquidatedBuyOrder Order,
 	 gain int32,
@@ -100,3 +64,40 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (
 
 	 return remainingSellOrder, liquidatedBuyOrder, gain, true, false
  }
+
+
+ // FillSellOrder try to fill the sell order with the order book and returns all the side effects
+func (b *BuyOrderBook) FillSellOrder(order Order) (
+	remainingSellOrder Order,
+	liquidated []Order,
+	gain int32,
+	filled bool,
+) {
+	var liquidatedList []Order
+	totalGain := int32(0)
+	remainingSellOrder = order
+
+	// Liquidate as long as there is match
+	for {
+		var match bool
+		var liquidation Order
+		remainingSellOrder, liquidation, gain, match, filled = b.LiquidateFromSellOrder(
+			remainingSellOrder,
+		)
+		if !match {
+			break
+		}
+
+		// Update gains
+		totalGain += gain
+
+		// Update liquidated
+		liquidatedList = append(liquidatedList, liquidation)
+
+		if filled {
+			break
+		}
+	}
+
+	return remainingSellOrder, liquidatedList, totalGain, filled
+}
