@@ -11,6 +11,13 @@ const (
 	MaxPrice  = int32(100000)
 )
 
+type Ordering int
+
+const (
+	Increasing Ordering = iota
+	Decreasing
+)
+
 var (
 	ErrMaxAmount     = errors.New("max amount reached")
 	ErrMaxPrice      = errors.New("max price reached")
@@ -18,76 +25,6 @@ var (
 	ErrZeroPrice     = errors.New("price is zero")
 	ErrOrderNotFound = errors.New("order not found")
 )
-
-type OrderBook interface {
-	sort.Interface
-	InsertOrder(Order) OrderBook
-	GetOrder(int) (Order, error)
-	SetOrder(int, Order) (OrderBook, error)
-	GetNextOrderID() int32
-	IncrementNextOrderID() OrderBook
-	GetOrderFromID(int32) (Order, error)
-	RemoveOrderFromID(int32) (OrderBook, error)
-}
-
-// UpdateOrderBook updates an order book with an order
-// if the ID already exist, it append the amount to the existing order (without checking price)
-// if it doesn't exist, the order is inserted
-func UpdateOrderBook(book OrderBook, order Order) OrderBook {
-	// Search of the order of the same ID
-	var found bool
-	var orderToUpdate Order
-	var i int
-	for i = book.Len() - 1; i >= 0; i-- {
-		orderToUpdate, _ = book.GetOrder(i)
-		if orderToUpdate.Id == order.Id {
-			found = true
-			break
-		}
-	}
-
-	// If order found
-	if found {
-		orderToUpdate.Amount += order.Amount
-		book, _ = book.SetOrder(i, orderToUpdate)
-	} else {
-		book = book.InsertOrder(order)
-	}
-
-	return book
-}
-
-// RestoreOrderBook restores the orderbook from an orderbook transition
-func RestoreOrderBook(book OrderBook, liquidated []Order) OrderBook {
-	// Restore all liquidation inside the orderbook
-	for _, liquidation := range liquidated {
-		book = UpdateOrderBook(book, liquidation)
-	}
-
-	return book
-}
-
-// AppendOrder initializes and appends a new order in a book from order information
-func AppendOrder(book OrderBook, creator string, amount int32, price int32) (OrderBook, int32, error) {
-	if err := checkAmountAndPrice(amount, price); err != nil {
-		return book, 0, err
-	}
-
-	// Initialize the order
-	var order Order
-	order.Id = book.GetNextOrderID()
-	order.Creator = creator
-	order.Amount = amount
-	order.Price = price
-
-	// Increment ID tracker
-	book = book.IncrementNextOrderID()
-
-	// Insert the order
-	book = book.InsertOrder(order)
-
-	return book, order.Id, nil
-}
 
 // checkAmountAndPrice checks correct amount or price
 func checkAmountAndPrice(amount int32, price int32) error {
@@ -106,3 +43,116 @@ func checkAmountAndPrice(amount int32, price int32) error {
 
 	return nil
 }
+
+func NewOrderBook() OrderBook {
+	return OrderBook{
+		IdCount: 0,
+	}
+}
+
+// GetOrder gets the order from an index
+func (book OrderBook) GetOrder(index int) (order Order, err error) {
+	if index >= len(book.Orders) {
+		return order, ErrOrderNotFound
+	}
+
+	return *book.Orders[index], nil
+}
+
+// GetNextOrderID gets the ID of the next order to append
+func (book OrderBook) GetNextOrderID() int32 {
+	return book.IdCount
+}
+
+// GetOrderFromID gets an order from the book from its id
+func (book OrderBook) GetOrderFromID(id int32) (Order, error) {
+	for _, order := range book.Orders {
+		if order.Id == id {
+			return *order, nil
+		}
+	}
+	return Order{}, ErrOrderNotFound
+}
+
+// SetOrder gets the order from an index
+func (book *OrderBook) SetOrder(index int, order Order) error {
+	if index >= len(book.Orders) {
+		return ErrOrderNotFound
+	}
+
+	book.Orders[index] = &order
+
+	return nil
+}
+
+// IncrementNextOrderID updates the ID count for orders
+func (book *OrderBook) IncrementNextOrderID() {
+	// Even numbers to have different ID than buy orders
+	book.IdCount++
+}
+
+// RemoveOrderFromID removes an order from the book and keep it ordered
+func (book* OrderBook) RemoveOrderFromID(id int32) error {
+	for i, order := range book.Orders {
+		if order.Id == id {
+			book.Orders = append(book.Orders[:i], book.Orders[i+1:]...)
+			return nil
+		}
+	}
+	return ErrOrderNotFound
+}
+
+// AppendOrder initializes and appends a new order in a book from order information
+func (book *OrderBook) appendOrder(creator string, amount int32, price int32, ordering Ordering) (int32, error) {
+	if err := checkAmountAndPrice(amount, price); err != nil {
+		return 0, err
+	}
+
+	// Initialize the order
+	var order Order
+	order.Id = book.GetNextOrderID()
+	order.Creator = creator
+	order.Amount = amount
+	order.Price = price
+
+	// Increment ID tracker
+	book.IncrementNextOrderID()
+
+	// Insert the order
+	book.insertOrder(order, ordering)
+
+	return order.Id, nil
+}
+
+// insertOrder inserts the order in the book with the provided order
+func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
+	if len(book.Orders) > 0 {
+		var i int
+
+		// get the index of the new order depending on the provided ordering
+		if ordering == Increasing {
+			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price > order.Price })
+		} else {
+			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
+		}
+
+		// insert order
+		orders := append(book.Orders, &order)
+		copy(orders[i+1:], orders[i:])
+		orders[i] = &order
+		book.Orders = orders
+	} else {
+		book.Orders = append(book.Orders, &order)
+	}
+}
+
+// AppendOrder appends an order in buy order book
+func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
+	return b.Book.appendOrder(creator, amount, price, Increasing)
+}
+
+// AppendOrder appends an order in sell order book
+func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
+	return s.Book.appendOrder(creator, amount, price, Decreasing)
+}
+
