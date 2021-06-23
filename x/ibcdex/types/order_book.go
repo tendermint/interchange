@@ -1,4 +1,4 @@
-// x/ibcdex/types/orderbook.go
+// x/ibcdex/types/order_book.go
 package types
 
 import (
@@ -145,14 +145,3 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 		book.Orders = append(book.Orders, &order)
 	}
 }
-
-// AppendOrder appends an order in buy order book
-func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
-	return b.Book.appendOrder(creator, amount, price, Increasing)
-}
-
-// AppendOrder appends an order in sell order book
-func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
-	return s.Book.appendOrder(creator, amount, price, Decreasing)
-}
-
