@@ -1,12 +1,24 @@
 import { Writer, Reader } from 'protobufjs/minimal';
 export declare const protobufPackage = "tendermint.interchange.ibcdex";
 /** proto/ibcdex/order.proto */
+export interface OrderBook {
+    idCount: number;
+    /** <-- */
+    orders: Order[];
+}
 export interface Order {
     id: number;
     creator: string;
     amount: number;
     price: number;
 }
+export declare const OrderBook: {
+    encode(message: OrderBook, writer?: Writer): Writer;
+    decode(input: Reader | Uint8Array, length?: number): OrderBook;
+    fromJSON(object: any): OrderBook;
+    toJSON(message: OrderBook): unknown;
+    fromPartial(object: DeepPartial<OrderBook>): OrderBook;
+};
 export declare const Order: {
     encode(message: Order, writer?: Writer): Writer;
     decode(input: Reader | Uint8Array, length?: number): Order;

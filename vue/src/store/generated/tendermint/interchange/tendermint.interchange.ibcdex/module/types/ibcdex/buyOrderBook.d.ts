@@ -1,14 +1,13 @@
-import { Order } from '../ibcdex/order';
+import { OrderBook } from '../ibcdex/order';
 import { Writer, Reader } from 'protobufjs/minimal';
 export declare const protobufPackage = "tendermint.interchange.ibcdex";
 export interface BuyOrderBook {
     creator: string;
     index: string;
-    orderIDTrack: number;
     amountDenom: string;
     priceDenom: string;
     /** <-- */
-    orders: Order[];
+    book: OrderBook | undefined;
 }
 export declare const BuyOrderBook: {
     encode(message: BuyOrderBook, writer?: Writer): Writer;

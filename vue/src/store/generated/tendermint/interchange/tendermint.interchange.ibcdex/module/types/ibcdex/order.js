@@ -1,6 +1,82 @@
 /* eslint-disable */
 import { Writer, Reader } from 'protobufjs/minimal';
 export const protobufPackage = 'tendermint.interchange.ibcdex';
+const baseOrderBook = { idCount: 0 };
+export const OrderBook = {
+    encode(message, writer = Writer.create()) {
+        if (message.idCount !== 0) {
+            writer.uint32(8).int32(message.idCount);
+        }
+        for (const v of message.orders) {
+            Order.encode(v, writer.uint32(18).fork()).ldelim();
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof Uint8Array ? new Reader(input) : input;
+        let end = length === undefined ? reader.len : reader.pos + length;
+        const message = { ...baseOrderBook };
+        message.orders = [];
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.idCount = reader.int32();
+                    break;
+                case 2:
+                    message.orders.push(Order.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    },
+    fromJSON(object) {
+        const message = { ...baseOrderBook };
+        message.orders = [];
+        if (object.idCount !== undefined && object.idCount !== null) {
+            message.idCount = Number(object.idCount);
+        }
+        else {
+            message.idCount = 0;
+        }
+        if (object.orders !== undefined && object.orders !== null) {
+            for (const e of object.orders) {
+                message.orders.push(Order.fromJSON(e));
+            }
+        }
+        return message;
+    },
+    toJSON(message) {
+        const obj = {};
+        message.idCount !== undefined && (obj.idCount = message.idCount);
+        if (message.orders) {
+            obj.orders = message.orders.map((e) => (e ? Order.toJSON(e) : undefined));
+        }
+        else {
+            obj.orders = [];
+        }
+        return obj;
+    },
+    fromPartial(object) {
+        const message = { ...baseOrderBook };
+        message.orders = [];
+        if (object.idCount !== undefined && object.idCount !== null) {
+            message.idCount = object.idCount;
+        }
+        else {
+            message.idCount = 0;
+        }
+        if (object.orders !== undefined && object.orders !== null) {
+            for (const e of object.orders) {
+                message.orders.push(Order.fromPartial(e));
+            }
+        }
+        return message;
+    }
+};
 const baseOrder = { id: 0, creator: '', amount: 0, price: 0 };
 export const Order = {
     encode(message, writer = Writer.create()) {
