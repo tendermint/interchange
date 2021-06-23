@@ -1,11 +1,9 @@
 export interface IbcdexBuyOrderBook {
     creator?: string;
     index?: string;
-    /** @format int32 */
-    orderIDTrack?: number;
     amountDenom?: string;
     priceDenom?: string;
-    orders?: IbcdexOrder[];
+    book?: IbcdexOrderBook;
 }
 export interface IbcdexDenomTrace {
     creator?: string;
@@ -27,6 +25,11 @@ export interface IbcdexOrder {
     amount?: number;
     /** @format int32 */
     price?: number;
+}
+export interface IbcdexOrderBook {
+    /** @format int32 */
+    idCount?: number;
+    orders?: IbcdexOrder[];
 }
 export interface IbcdexQueryAllBuyOrderBookResponse {
     BuyOrderBook?: IbcdexBuyOrderBook[];
@@ -79,11 +82,9 @@ export interface IbcdexQueryGetSellOrderBookResponse {
 export interface IbcdexSellOrderBook {
     creator?: string;
     index?: string;
-    /** @format int32 */
-    orderIDTrack?: number;
     amountDenom?: string;
     priceDenom?: string;
-    orders?: IbcdexOrder[];
+    book?: IbcdexOrderBook;
 }
 export interface ProtobufAny {
     typeUrl?: string;

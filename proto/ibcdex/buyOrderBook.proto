@@ -10,8 +10,7 @@ import "ibcdex/order.proto"; // <--
 message BuyOrderBook {
   string creator = 1;
   string index = 2;
-  int32 orderIDTrack = 3; 
-  string amountDenom = 4; 
-  string priceDenom = 5;
-  repeated Order orders = 6; // <--
+  string amountDenom = 3;
+  string priceDenom = 4;
+  OrderBook book = 5; // <--
 }

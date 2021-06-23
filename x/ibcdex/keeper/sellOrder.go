@@ -81,7 +81,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 	}
 
 	// Fill sell order
-	book, remaining, liquidated, gain, _ := types.FillSellOrder(book, types.Order{
+	remaining, liquidated, gain, _ := book.FillSellOrder(types.Order{
 		Amount: data.Amount,
 		Price:  data.Price,
 	})
@@ -166,8 +166,7 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 
 		// Append the remaining amount of the order
 		if packetAck.RemainingAmount > 0 {
-			newBook, _, err := types.AppendOrder(
-				book,
+			_, err := book.AppendOrder(
 				data.Seller,
 				packetAck.RemainingAmount,
 				data.Price,
@@ -175,7 +174,6 @@ func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channel
 			if err != nil {
 				return err
 			}
-			book = newBook.(types.SellOrderBook)
 
 			// Save the new order book
 			k.SetSellOrderBook(ctx, book)

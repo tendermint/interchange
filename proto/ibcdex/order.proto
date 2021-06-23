@@ -4,6 +4,11 @@ package tendermint.interchange.ibcdex;
 
 option go_package = "github.com/tendermint/interchange/x/ibcdex/types";
 
+message OrderBook {
+  int32 idCount = 1;
+  repeated Order orders = 2; // <--
+}
+
 message Order {
   int32 id = 1;
   string creator = 2;

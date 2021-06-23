@@ -19293,29 +19293,32 @@ paths:
                       type: string
                     index:
                       type: string
-                    orderIDTrack:
-                      type: integer
-                      format: int32
                     amountDenom:
                       type: string
                     priceDenom:
                       type: string
-                    orders:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            format: int32
-                          creator:
-                            type: string
-                          amount:
-                            type: integer
-                            format: int32
-                          price:
-                            type: integer
-                            format: int32
+                    book:
+                      type: object
+                      properties:
+                        idCount:
+                          type: integer
+                          format: int32
+                        orders:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                format: int32
+                              creator:
+                                type: string
+                              amount:
+                                type: integer
+                                format: int32
+                              price:
+                                type: integer
+                                format: int32
               pagination:
                 type: object
                 properties:
@@ -19429,29 +19432,32 @@ paths:
                     type: string
                   index:
                     type: string
-                  orderIDTrack:
-                    type: integer
-                    format: int32
                   amountDenom:
                     type: string
                   priceDenom:
                     type: string
-                  orders:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          format: int32
-                        creator:
-                          type: string
-                        amount:
-                          type: integer
-                          format: int32
-                        price:
-                          type: integer
-                          format: int32
+                  book:
+                    type: object
+                    properties:
+                      idCount:
+                        type: integer
+                        format: int32
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: int32
+                            creator:
+                              type: string
+                            amount:
+                              type: integer
+                              format: int32
+                            price:
+                              type: integer
+                              format: int32
         default:
           description: An unexpected error response.
           schema:
@@ -19669,29 +19675,32 @@ paths:
                       type: string
                     index:
                       type: string
-                    orderIDTrack:
-                      type: integer
-                      format: int32
                     amountDenom:
                       type: string
                     priceDenom:
                       type: string
-                    orders:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            format: int32
-                          creator:
-                            type: string
-                          amount:
-                            type: integer
-                            format: int32
-                          price:
-                            type: integer
-                            format: int32
+                    book:
+                      type: object
+                      properties:
+                        idCount:
+                          type: integer
+                          format: int32
+                        orders:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                format: int32
+                              creator:
+                                type: string
+                              amount:
+                                type: integer
+                                format: int32
+                              price:
+                                type: integer
+                                format: int32
               pagination:
                 type: object
                 properties:
@@ -19805,29 +19814,32 @@ paths:
                     type: string
                   index:
                     type: string
-                  orderIDTrack:
-                    type: integer
-                    format: int32
                   amountDenom:
                     type: string
                   priceDenom:
                     type: string
-                  orders:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          format: int32
-                        creator:
-                          type: string
-                        amount:
-                          type: integer
-                          format: int32
-                        price:
-                          type: integer
-                          format: int32
+                  book:
+                    type: object
+                    properties:
+                      idCount:
+                        type: integer
+                        format: int32
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: int32
+                            creator:
+                              type: string
+                            amount:
+                              type: integer
+                              format: int32
+                            price:
+                              type: integer
+                              format: int32
         default:
           description: An unexpected error response.
           schema:
@@ -30076,29 +30088,32 @@ definitions:
         type: string
       index:
         type: string
-      orderIDTrack:
-        type: integer
-        format: int32
       amountDenom:
         type: string
       priceDenom:
         type: string
-      orders:
-        type: array
-        items:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int32
-            creator:
-              type: string
-            amount:
-              type: integer
-              format: int32
-            price:
-              type: integer
-              format: int32
+      book:
+        type: object
+        properties:
+          idCount:
+            type: integer
+            format: int32
+          orders:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                creator:
+                  type: string
+                amount:
+                  type: integer
+                  format: int32
+                price:
+                  type: integer
+                  format: int32
   tendermint.interchange.ibcdex.DenomTrace:
     type: object
     properties:
@@ -30136,6 +30151,28 @@ definitions:
       price:
         type: integer
         format: int32
+  tendermint.interchange.ibcdex.OrderBook:
+    type: object
+    properties:
+      idCount:
+        type: integer
+        format: int32
+      orders:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+            creator:
+              type: string
+            amount:
+              type: integer
+              format: int32
+            price:
+              type: integer
+              format: int32
   tendermint.interchange.ibcdex.QueryAllBuyOrderBookResponse:
     type: object
     properties:
@@ -30148,29 +30185,32 @@ definitions:
               type: string
             index:
               type: string
-            orderIDTrack:
-              type: integer
-              format: int32
             amountDenom:
               type: string
             priceDenom:
               type: string
-            orders:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int32
-                  creator:
-                    type: string
-                  amount:
-                    type: integer
-                    format: int32
-                  price:
-                    type: integer
-                    format: int32
+            book:
+              type: object
+              properties:
+                idCount:
+                  type: integer
+                  format: int32
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int32
+                      creator:
+                        type: string
+                      amount:
+                        type: integer
+                        format: int32
+                      price:
+                        type: integer
+                        format: int32
       pagination:
         type: object
         properties:
@@ -30251,29 +30291,32 @@ definitions:
               type: string
             index:
               type: string
-            orderIDTrack:
-              type: integer
-              format: int32
             amountDenom:
               type: string
             priceDenom:
               type: string
-            orders:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int32
-                  creator:
-                    type: string
-                  amount:
-                    type: integer
-                    format: int32
-                  price:
-                    type: integer
-                    format: int32
+            book:
+              type: object
+              properties:
+                idCount:
+                  type: integer
+                  format: int32
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int32
+                      creator:
+                        type: string
+                      amount:
+                        type: integer
+                        format: int32
+                      price:
+                        type: integer
+                        format: int32
       pagination:
         type: object
         properties:
@@ -30309,29 +30352,32 @@ definitions:
             type: string
           index:
             type: string
-          orderIDTrack:
-            type: integer
-            format: int32
           amountDenom:
             type: string
           priceDenom:
             type: string
-          orders:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  format: int32
-                creator:
-                  type: string
-                amount:
-                  type: integer
-                  format: int32
-                price:
-                  type: integer
-                  format: int32
+          book:
+            type: object
+            properties:
+              idCount:
+                type: integer
+                format: int32
+              orders:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                    creator:
+                      type: string
+                    amount:
+                      type: integer
+                      format: int32
+                    price:
+                      type: integer
+                      format: int32
   tendermint.interchange.ibcdex.QueryGetDenomTraceResponse:
     type: object
     properties:
@@ -30358,13 +30404,49 @@ definitions:
             type: string
           index:
             type: string
-          orderIDTrack:
-            type: integer
-            format: int32
           amountDenom:
             type: string
           priceDenom:
             type: string
+          book:
+            type: object
+            properties:
+              idCount:
+                type: integer
+                format: int32
+              orders:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                    creator:
+                      type: string
+                    amount:
+                      type: integer
+                      format: int32
+                    price:
+                      type: integer
+                      format: int32
+  tendermint.interchange.ibcdex.SellOrderBook:
+    type: object
+    properties:
+      creator:
+        type: string
+      index:
+        type: string
+      amountDenom:
+        type: string
+      priceDenom:
+        type: string
+      book:
+        type: object
+        properties:
+          idCount:
+            type: integer
+            format: int32
           orders:
             type: array
             items:
@@ -30381,33 +30463,3 @@ definitions:
                 price:
                   type: integer
                   format: int32
-  tendermint.interchange.ibcdex.SellOrderBook:
-    type: object
-    properties:
-      creator:
-        type: string
-      index:
-        type: string
-      orderIDTrack:
-        type: integer
-        format: int32
-      amountDenom:
-        type: string
-      priceDenom:
-        type: string
-      orders:
-        type: array
-        items:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int32
-            creator:
-              type: string
-            amount:
-              type: integer
-              format: int32
-            price:
-              type: integer
-              format: int32
