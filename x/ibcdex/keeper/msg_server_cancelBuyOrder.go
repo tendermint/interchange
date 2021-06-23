@@ -13,13 +13,13 @@ func (k msgServer) CancelBuyOrder(goCtx context.Context, msg *types.MsgCancelBuy
 
 	// Retrieve the book
 	pairIndex := types.OrderBookIndex(msg.Port, msg.Channel, msg.AmountDenom, msg.PriceDenom)
-	book, found := k.GetBuyOrderBook(ctx, pairIndex)
+	b, found := k.GetBuyOrderBook(ctx, pairIndex)
 	if !found {
 		return &types.MsgCancelBuyOrderResponse{}, errors.New("the pair doesn't exist")
 	}
 
 	// Check order creator
-	order, err := book.GetOrderFromID(msg.OrderID)
+	order, err := b.Book.GetOrderFromID(msg.OrderID)
 	if err != nil {
 		return &types.MsgCancelBuyOrderResponse{}, err
 	}
@@ -28,12 +28,10 @@ func (k msgServer) CancelBuyOrder(goCtx context.Context, msg *types.MsgCancelBuy
 	}
 
 	// Remove order
-	newBook, err := book.RemoveOrderFromID(msg.OrderID)
-	if err != nil {
+	if err := b.Book.RemoveOrderFromID(msg.OrderID); err != nil {
 		return &types.MsgCancelBuyOrderResponse{}, err
 	}
-	book = newBook.(types.BuyOrderBook)
-	k.SetBuyOrderBook(ctx, book)
+	k.SetBuyOrderBook(ctx, b)
 
 	// Refund buyer with remaining price amount
 	buyer, err := sdk.AccAddressFromBech32(order.Creator)
