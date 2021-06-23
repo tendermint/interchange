@@ -8,6 +8,24 @@ import (
 	"github.com/tendermint/interchange/x/ibcdex/types"
 )
 
+func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
+	listCopy := make([]*types.Order, len(list))
+	for i, order := range list {
+		order := order
+		listCopy[i] = &order
+	}
+
+	book := types.BuyOrderBook{
+		AmountDenom: "foo",
+		PriceDenom:  "bar",
+		Book: &types.OrderBook{
+			IdCount: 0,
+			Orders:  listCopy,
+		},
+	}
+	return book
+}
+
 func TestAppendOrder(t *testing.T) {
 	buyBook := types.NewBuyOrderBook(GenPair())
 

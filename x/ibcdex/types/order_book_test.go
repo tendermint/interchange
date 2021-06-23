@@ -1,10 +1,13 @@
 package types_test
 
 import (
+	"math/rand"
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 	"github.com/tendermint/interchange/x/ibcdex/types"
-	"math/rand"
 )
 
 func GenString(n int) string {
@@ -47,40 +50,61 @@ func MockAccount(str string) string {
 	return str
 }
 
-func OrderListToSellOrderBook(list []types.Order) types.SellOrderBook {
+func OrderListToOrderBook(list []types.Order) types.OrderBook {
 	listCopy := make([]*types.Order, len(list))
 	for i, order := range list {
 		order := order
 		listCopy[i] = &order
 	}
 
-	book := types.SellOrderBook{
-		AmountDenom:  "foo",
-		PriceDenom:   "bar",
-		Book: &types.OrderBook{
-			IdCount: 0,
-			Orders:       listCopy,
-		},
+	return types.OrderBook{
+		IdCount: 0,
+		Orders:  listCopy,
 	}
-	return book
 }
 
-func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
-	listCopy := make([]*types.Order, len(list))
-	for i, order := range list {
-		order := order
-		listCopy[i] = &order
+func TestRemoveOrderFromID(t *testing.T) {
+	inputList := []types.Order{
+		{Id: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 	}
 
-	book := types.BuyOrderBook{
-		AmountDenom:  "foo",
-		PriceDenom:   "bar",
-		Book: &types.OrderBook{
-			IdCount: 0,
-			Orders:       listCopy,
-		},
+	book := OrderListToOrderBook(inputList)
+	expectedList := []types.Order{
+		{Id: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
 	}
-	return book
+	expectedBook := OrderListToOrderBook(expectedList)
+	err := book.RemoveOrderFromID(2)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, book)
+
+	book = OrderListToOrderBook(inputList)
+	expectedList = []types.Order{
+		{Id: 3, Creator: MockAccount("3"), Amount: 2, Price: 10},
+		{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+	}
+	expectedBook = OrderListToOrderBook(expectedList)
+	err = book.RemoveOrderFromID(0)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, book)
+
+	book = OrderListToOrderBook(inputList)
+	expectedList = []types.Order{
+		{Id: 2, Creator: MockAccount("2"), Amount: 30, Price: 15},
+		{Id: 1, Creator: MockAccount("1"), Amount: 200, Price: 20},
+		{Id: 0, Creator: MockAccount("0"), Amount: 50, Price: 25},
+	}
+	expectedBook = OrderListToOrderBook(expectedList)
+	err = book.RemoveOrderFromID(3)
+	require.NoError(t, err)
+	require.Equal(t, expectedBook, book)
+
+	book = OrderListToOrderBook(inputList)
+	err = book.RemoveOrderFromID(4)
+	require.ErrorIs(t, err, types.ErrOrderNotFound)
 }
-
-

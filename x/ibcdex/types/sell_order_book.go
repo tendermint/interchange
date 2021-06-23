@@ -16,45 +16,9 @@ func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (
 	return s.Book.appendOrder(creator, amount, price, Decreasing)
 }
 
-// FillBuyOrder try to fill the buy order with the order book and returns all the side effects
-func (s *SellOrderBook) FillBuyOrder(order Order) (
-	remainingBuyOrder Order,
-	liquidated []Order,
-	purchase int32,
-	filled bool,
-) {
-	var liquidatedList []Order
-	totalPurchase := int32(0)
-	remainingBuyOrder = order
-
-	// Liquidate as long as there is match
-	for {
-		var match bool
-		var liquidation Order
-		remainingBuyOrder, liquidation, purchase, match, filled = s.liquidateFromBuyOrder(
-			remainingBuyOrder,
-		)
-		if !match {
-			break
-		}
-
-		// Update gains
-		totalPurchase += purchase
-
-		// Update liquidated
-		liquidatedList = append(liquidatedList, liquidation)
-
-		if filled {
-			break
-		}
-	}
-
-	return remainingBuyOrder, liquidatedList, totalPurchase, filled
-}
-
-// liquidateFromBuyOrder liquidates the first sell order of the book from the buy order
+// LiquidateFromBuyOrder liquidates the first sell order of the book from the buy order
 // if no match is found, return false for match
-func (s *SellOrderBook) liquidateFromBuyOrder(order Order) (
+func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 	remainingBuyOrder Order,
 	liquidatedSellOrder Order,
 	purchase int32,
@@ -100,4 +64,40 @@ func (s *SellOrderBook) liquidateFromBuyOrder(order Order) (
 	remainingBuyOrder.Amount -= lowestAsk.Amount
 
 	return remainingBuyOrder, liquidatedSellOrder, purchase, true, false
+}
+
+// FillBuyOrder try to fill the buy order with the order book and returns all the side effects
+func (s *SellOrderBook) FillBuyOrder(order Order) (
+	remainingBuyOrder Order,
+	liquidated []Order,
+	purchase int32,
+	filled bool,
+) {
+	var liquidatedList []Order
+	totalPurchase := int32(0)
+	remainingBuyOrder = order
+
+	// Liquidate as long as there is match
+	for {
+		var match bool
+		var liquidation Order
+		remainingBuyOrder, liquidation, purchase, match, filled = s.LiquidateFromBuyOrder(
+			remainingBuyOrder,
+		)
+		if !match {
+			break
+		}
+
+		// Update gains
+		totalPurchase += purchase
+
+		// Update liquidated
+		liquidatedList = append(liquidatedList, liquidation)
+
+		if filled {
+			break
+		}
+	}
+
+	return remainingBuyOrder, liquidatedList, totalPurchase, filled
 }
