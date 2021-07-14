@@ -1,8 +1,14 @@
-# interchange
+# Interchange Exchange
 
-**interchange** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
+**Interchange** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
 
 ## Get started
+
+```
+starport build
+```
+
+`build` command builds and installs blockchain and its dependencies.
 
 ```
 starport serve
