@@ -33,7 +33,7 @@ cd vue
 npm install
 npm run serve
 ```
-
+ 
 The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For details, see the [monorepo for Starport front-end development](https://github.com/tendermint/vue).
 
 ## Learn more
