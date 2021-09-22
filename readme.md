@@ -36,4 +36,4 @@ The frontend app is built using the `@starport/vue` and `@starport/vuex` package
 - [Starport Docs](https://docs.starport.network)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
-- [Discord](https://discord.gg/W8trcGV)
+- [Discord](https://discord.gg/cosmosnetwork)
